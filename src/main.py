@@ -6,8 +6,8 @@ import pandas as pd
 
 from src.classes.DataPreprocessor import DataPreprocessor
 from src.classes.Logger import Logger
-from src.classes.ModelHandler import ModelHandler
-from src.classes.ResultDisplay import ResultDisplay
+from src.classes.ExperimentHandler import ExperimentHandler
+from src.classes.ResultsSummarizer import ResultsSummarizer
 
 warnings.filterwarnings('ignore')
 
@@ -24,12 +24,12 @@ def main():
     logger.info("Loading dataset...")
 
     # Set the log directory
-    logdir = os.path.join("logs", f"experiment_{time.time()}")
+    log_dir = os.path.join("logs", f"experiment_{time.time()}")
 
     # Ensure the log directory exists
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
-        logger.info(f"Created log directory at {logdir}")
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+        logger.info(f"Created log directory at {log_dir}")
 
     # Load the dataset
     df = pd.read_csv('dataset.csv', index_col=False)
@@ -46,12 +46,12 @@ def main():
 
     # Step 2: Model Training and Evaluation
     logger.info("Initializing model training...")
-    model_handler = ModelHandler(x, y, preprocessor, logdir)
+    model_handler = ExperimentHandler(x, y, preprocessor, log_dir)
     model_handler.train_and_evaluate()
 
     # Step 3: Display Results
     logger.info("Displaying results...")
-    ResultDisplay.display_results(model_handler.cv_results, model_handler.final_results)
+    ResultsSummarizer.summarize(log_dir)
 
     logger.info("Model training and evaluation completed.")
 

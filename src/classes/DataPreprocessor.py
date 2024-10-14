@@ -1,4 +1,4 @@
-from typing import Union, List, Dict
+from typing import Union
 
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -68,33 +68,3 @@ class DataPreprocessor:
 
         logger.info("Data preprocessing complete.")
         return preprocessor
-
-    def get_feature_names(self, preprocessor: ColumnTransformer) -> Dict[str, List[str]]:
-        """
-        Get the feature names after the preprocessing transformations have been applied.
-
-        :param preprocessor: The fitted preprocessor used in the pipeline
-        :return: A dictionary with numerical and categorical feature names
-        """
-        logger.info("Extracting feature names after preprocessing...")
-
-        try:
-            # Get numerical feature names
-            if self.apply_pca:
-                n_components = preprocessor.named_transformers_['num'].named_steps['pca'].n_components_
-                num_feature_names = [f"PC{i + 1}" for i in range(n_components)]
-            else:
-                num_feature_names = preprocessor.named_transformers_['num'].named_steps['scaler'] \
-                    .get_feature_names_out(self.num_cols)
-
-            # Get categorical feature names
-            cat_feature_names = preprocessor.named_transformers_['cat'].get_feature_names_out(self.cat_cols)
-
-            logger.info(f"Numerical features after processing: {num_feature_names}")
-            logger.info(f"Categorical features after encoding: {cat_feature_names}")
-
-            return {"num_cols": num_feature_names, "cat_cols": cat_feature_names}
-
-        except Exception as e:
-            logger.error(f"Error extracting feature names: {e}")
-            raise

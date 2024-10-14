@@ -1,39 +1,41 @@
+import json
+import os
 from typing import Dict, Any
 
 import numpy as np
+import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 from src.classes.CrossValidator import CrossValidator
 from src.classes.Logger import Logger
-from src.classes.ModelEvaluator import ModelEvaluator
+from src.classes.ModelEvaluationPipeline import ModelEvaluationPipeline
 from src.classes.PipelineBuilder import PipelineBuilder
 
 logger = Logger()
 
 
-class ModelHandler:
+class ExperimentHandler:
     """
     Handles model training, tuning, and cross-validation for different models.
     """
 
-    def __init__(self, x: np.ndarray, y: np.ndarray, preprocessor: ColumnTransformer, logdir: str) -> None:
+    def __init__(self, x: pd.DataFrame, y: np.ndarray, preprocessor: ColumnTransformer, log_dir: str) -> None:
         """
-        Initialize the ModelHandler with data, preprocessor, and logging directory.
+        Initialize the ExperimentHandler with data, preprocessor, and logging directory.
 
         :param x: Features for modeling (NumPy array).
         :param y: Target variable for prediction (NumPy array).
         :param preprocessor: Preprocessing pipeline for the data.
-        :param logdir: Directory to save the plots.
+        :param log_dir: Directory to save the plots and best parameters.
         """
         self.x = x
         self.y = y
         self.preprocessor = preprocessor
-        self.logdir = logdir
+        self.log_dir = log_dir
         self.models_and_params = PipelineBuilder.get_model_parameters()
         self.cv_results: Dict[str, Dict[str, Any]] = {}
-        self.final_results: Dict[str, Dict[str, float]] = {}
-        logger.info("ModelHandler initialized with the provided dataset and preprocessor.")
+        logger.info("ExperimentHandler initialized with the provided dataset and preprocessor.")
 
     def train_and_evaluate(self) -> None:
         """
@@ -54,6 +56,9 @@ class ModelHandler:
                 # Step 3: Train and evaluate the model
                 self._train_and_evaluate_model(grid_search, model_name)
 
+                # Step 4: Save best parameters to file
+                self._save_best_parameters(grid_search, model_name)
+
             except Exception as e:
                 logger.error(f"Error occurred during training of {model_name}: {str(e)}")
 
@@ -70,7 +75,7 @@ class ModelHandler:
             model_name=model_name,
             x=self.x,
             y=self.y,
-            cv_results=self.cv_results
+            log_dir=self.log_dir
         )
 
     def _train_and_evaluate_model(self, grid_search: GridSearchCV, model_name: str) -> None:
@@ -91,11 +96,33 @@ class ModelHandler:
 
         # Step 3: Evaluate the model and generate visual analysis
         logger.info(f"Evaluating and visualizing {model_name}...")
-        ModelEvaluator.evaluate_and_visualize_model(
+        ModelEvaluationPipeline.evaluate_and_visualize_model(
             grid_search=grid_search,
             model_name=model_name,
             y_test=y_test,
             y_pred=y_pred,
-            logdir=self.logdir,
-            final_results=self.final_results
+            log_dir=self.log_dir
         )
+
+    def _save_best_parameters(self, grid_search: GridSearchCV, model_name: str) -> None:
+        """
+        Save the best parameters for the model to a JSON file in the log directory.
+
+        :param grid_search: The GridSearchCV object after training.
+        :param model_name: The name of the model whose parameters are being saved.
+        """
+        try:
+            best_params = grid_search.best_params_
+            logger.info(f"Best parameters for [bold blue]{model_name}[/bold blue]: {best_params}")
+
+            # Define the file path to save the parameters as JSON
+            params_file_path = os.path.join(self.log_dir, f"{model_name}_best_params.json")
+
+            # Save the best parameters to a JSON file
+            with open(params_file_path, 'w') as file:
+                json.dump({model_name: best_params}, file, indent=4)
+
+            logger.info(f"Best parameters saved to {params_file_path}")
+
+        except Exception as e:
+            logger.error(f"Failed to save best parameters for {model_name}: {e}")

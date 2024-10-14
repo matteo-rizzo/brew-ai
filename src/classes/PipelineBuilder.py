@@ -35,7 +35,7 @@ class PipelineBuilder:
                 Ridge(),
                 {
                     'model__alpha': [0.001, 0.01, 0.1, 1.0, 10.0, 100.0],
-                    'model__solver': ['lsqr', 'sparse_cg', 'sag', 'lbfgs']
+                    'model__solver': ['lsqr', 'sparse_cg', 'sag']
                 }
             ),
 
@@ -63,7 +63,7 @@ class PipelineBuilder:
                 {
                     'model__n_estimators': [100, 200, 300],
                     'model__max_depth': [10, 20, 30, None],
-                    'model__max_features': ['auto', 'sqrt'],
+                    'model__max_features': ['log2', 'sqrt'],
                     'model__min_samples_split': [2, 5, 10]
                 }
             ),

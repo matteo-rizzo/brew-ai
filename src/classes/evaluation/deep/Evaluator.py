@@ -1,9 +1,10 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
 import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
 from rtdl import FTTransformer
+from sklearn.base import BaseEstimator
 from tab_transformer_pytorch import TabTransformer
 
 from src.classes.utils.Logger import Logger
@@ -17,7 +18,7 @@ class Evaluator:
     Supports TabNet, FTTransformer, TabTransformer, and other models.
     """
 
-    def __init__(self, model: torch.nn.Module, idx_num: list, idx_cat: list):
+    def __init__(self, model: Union[torch.nn.Module, BaseEstimator], idx_num: list, idx_cat: list):
         self.model = model
         self.idx_num = idx_num
         self.idx_cat = idx_cat

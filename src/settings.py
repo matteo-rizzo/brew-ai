@@ -4,4 +4,5 @@ BASE_LOG_DIR = "logs"
 RANDOM_SEED = 0
 APPLY_PCA = False
 TEST_SIZE = 0.2
-MODEL_DEEP = "tabtransformer"  # 'tabnet', 'node', 'tabtransformer'
+MODEL_DEEP = "tabnet"  # 'tabnet', 'node', 'tabtransformer'
+EPOCHS = 2000

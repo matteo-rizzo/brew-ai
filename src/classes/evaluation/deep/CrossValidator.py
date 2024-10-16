@@ -1,7 +1,7 @@
 import numpy as np
 from rich.progress import Progress
 from sklearn.base import BaseEstimator
-from sklearn.model_selection import KFold, train_test_split
+from sklearn.model_selection import KFold
 
 from src.classes.evaluation.MetricsCalculator import MetricsCalculator
 from src.classes.evaluation.deep.Evaluator import Evaluator
@@ -29,11 +29,6 @@ class CrossValidator:
         self.n_splits = n_splits
         self.test_size = TEST_SIZE
 
-        # Split the data into training and test sets
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-            self.x, self.y, test_size=self.test_size, random_state=RANDOM_SEED
-        )
-
     def cross_validate(self) -> None:
         """
         Perform cross-validation on the model.
@@ -45,19 +40,19 @@ class CrossValidator:
         with Progress() as progress:
             task = progress.add_task(f"Cross-validating {self.model.__class__.__name__}...", total=self.n_splits)
 
-            for fold, (train_index, val_index) in enumerate(kf.split(self.x_train), 1):
+            for fold, (train_index, val_index) in enumerate(kf.split(self.x), 1):
                 logger.info(f"Starting fold {fold}/{self.n_splits}...")
 
                 # Split data into training and validation sets
-                x_train_fold, x_val_fold = self.x_train[train_index], self.x_train[val_index]
-                y_train_fold, y_val_fold = self.y_train[train_index], self.y_train[val_index]
+                x_train_fold, x_val_fold = self.x[train_index], self.x[val_index]
+                y_train_fold, y_val_fold = self.y[train_index], self.y[val_index]
 
                 try:
                     # Train the model on the current fold
-                    trained_model = self._train_on_fold(fold, x_train_fold, y_train_fold, x_val_fold, y_val_fold)
+                    trained_model = self._train_on_fold(fold, x_train_fold, y_train_fold)
 
                     # Evaluate the model after training the fold
-                    self._evaluate_on_test_set(fold, trained_model)
+                    self._evaluate_on_test_set(fold, trained_model, x_val_fold, y_val_fold, )
                     logger.info(f"Fold {fold}/{self.n_splits} completed successfully.")
 
                 except Exception as e:
@@ -67,20 +62,19 @@ class CrossValidator:
 
         logger.info(f"{self.n_splits}-fold cross-validation completed successfully.")
 
-    def _train_on_fold(self, fold: int, x_train_fold: np.ndarray, y_train_fold: np.ndarray,
-                       x_val_fold: np.ndarray, y_val_fold: np.ndarray) -> BaseEstimator:
+    def _train_on_fold(self, fold: int, x_train_fold: np.ndarray, y_train_fold: np.ndarray) -> BaseEstimator:
         """
         Train the model for a single fold.
         """
         logger.info(f"Training fold {fold} with {self.model.__class__.__name__}...")
         trainer = Trainer(self.model, self.idx_num, self.idx_cat)
-        trainer.train(x_train_fold, y_train_fold, x_val_fold, y_val_fold)
+        trainer.train(x_train_fold, y_train_fold)
         return trainer.get_model()
 
-    def _evaluate_on_test_set(self, fold: int, model: BaseEstimator) -> None:
+    def _evaluate_on_test_set(self, fold: int, model: BaseEstimator, x_test: np.ndarray, y_test: np.ndarray):
         """
         Evaluate the trained model on the test set after each fold.
         """
         logger.info(f"Evaluating model on the test set after fold {fold}...")
-        y_pred = Evaluator(model, self.idx_num, self.idx_cat).evaluate(self.x_test)
-        MetricsCalculator.evaluate_model(MODEL_DEEP, self.y_test, y_pred, self.log_dir)
+        y_pred = Evaluator(model, self.idx_num, self.idx_cat).evaluate(x_test)
+        MetricsCalculator.evaluate_model(MODEL_DEEP, y_test, y_pred, self.log_dir, fold)

@@ -9,6 +9,7 @@ from tab_transformer_pytorch import TabTransformer
 from torch import nn
 
 from src.classes.utils.Logger import Logger
+from src.settings import EPOCHS
 
 logger = Logger()
 
@@ -20,21 +21,21 @@ class Trainer:
     """
 
     def __init__(self, model: Union[torch.nn.Module, BaseEstimator], idx_num: List[int], idx_cat: List[int],
-                 epochs: int = 100, learning_rate: float = 1e-3):
+                 epochs: int = EPOCHS, learning_rate: float = 1e-3):
         self.model = model
         self.idx_num = idx_num
         self.idx_cat = idx_cat
         self.epochs = epochs
         self.learning_rate = learning_rate
 
-    def train(self, x_train: np.ndarray, y_train: np.ndarray, x_val: np.ndarray, y_val: np.ndarray) -> None:
+    def train(self, x_train: np.ndarray, y_train: np.ndarray) -> None:
         """
         Train the model on a single fold.
         """
-        y_train, y_val = y_train.reshape(-1, 1), y_val.reshape(-1, 1)
+        y_train = y_train.reshape(-1, 1)
 
         if isinstance(self.model, TabNetRegressor):
-            self._train_tabnet(x_train, y_train, x_val, y_val)
+            self._train_tabnet(x_train, y_train)
         elif isinstance(self.model, FTTransformer):
             self._train_pytorch_model(x_train, y_train, model_type="FTTransformer")
         elif isinstance(self.model, TabTransformer):
@@ -51,13 +52,13 @@ class Trainer:
         y_tensor = torch.tensor(y, dtype=torch.float32)
         return x_num_tensor, x_cat_tensor, y_tensor
 
-    def _train_tabnet(self, x_train: np.ndarray, y_train: np.ndarray, x_val: np.ndarray, y_val: np.ndarray) -> None:
+    def _train_tabnet(self, x_train: np.ndarray, y_train: np.ndarray) -> None:
         """Train TabNet model."""
         logger.info("Training TabNet model...")
         self.model.fit(
             X_train=x_train,
             y_train=y_train,
-            eval_set=[(x_val, y_val)]
+            max_epochs=self.epochs
         )
         logger.info("TabNet training completed.")
 

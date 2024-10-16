@@ -70,7 +70,7 @@ class MetricsCalculator:
             raise
 
     @staticmethod
-    def evaluate_model(model_name: str, y_test: np.ndarray, y_pred: np.ndarray, log_dir: str) -> None:
+    def evaluate_model(model_name: str, y_test: np.ndarray, y_pred: np.ndarray, log_dir: str, fold: int = None) -> None:
         """
         Calculate and store evaluation metrics for each model and save to log_dir as a JSON file.
 
@@ -78,6 +78,7 @@ class MetricsCalculator:
         :param y_test: True target values
         :param y_pred: Predicted target values
         :param log_dir: Log directory
+        :param fold: Current fold for logging
         """
         try:
             # Calculate metrics
@@ -87,24 +88,25 @@ class MetricsCalculator:
             logger.log_metrics_table(model_name, metrics)
 
             # Save metrics to a JSON file
-            MetricsCalculator._save_metrics_to_json(model_name, metrics, log_dir)
+            MetricsCalculator._save_metrics_to_json(model_name, metrics, log_dir, fold)
 
         except Exception as e:
             logger.error(f"Failed to evaluate the model {model_name}: {e}")
             raise
 
     @staticmethod
-    def _save_metrics_to_json(model_name: str, metrics: Dict[str, float], log_dir: str) -> None:
+    def _save_metrics_to_json(model_name: str, metrics: Dict[str, float], log_dir: str, fold: int) -> None:
         """
         Save the evaluation metrics to a JSON file in the log directory.
 
         :param model_name: Name of the model being evaluated
         :param metrics: Dictionary containing calculated metrics
         :param log_dir: Directory where the metrics will be saved
+        :param fold: Current fold for logging
         """
         try:
             # Define the file path to save the metrics in JSON format
-            metrics_file_path = os.path.join(log_dir, f"{model_name}_metrics.json")
+            metrics_file_path = os.path.join(log_dir, f"{model_name}{fold}_metrics.json")
 
             # Save the metrics to a JSON file
             with open(metrics_file_path, 'w') as json_file:

@@ -3,10 +3,9 @@ import os
 from typing import Dict
 
 import pandas as pd
-import seaborn as sns
-from matplotlib import pyplot as plt
 
-from src.classes.Logger import Logger
+from src.classes.utils.Logger import Logger
+from src.classes.utils.Plotter import Plotter
 
 # Initialize custom logger
 logger = Logger()
@@ -42,7 +41,7 @@ class ResultsSummarizer:
                 logger.info(f"{metrics_results_df.to_string()}")
 
                 # Plot the metrics results and save to log_dir
-                ResultsSummarizer._plot_results(metrics_results_df, log_dir)
+                Plotter.plot_results(metrics_results_df, log_dir)
 
             # Fetch and display final evaluation results if they exist
             final_results_path = os.path.join(log_dir, "final_evaluation_results.json")
@@ -53,7 +52,7 @@ class ResultsSummarizer:
                 logger.info(f"{final_results_df.to_string()}")
 
                 # Plot results and save to log_dir
-                ResultsSummarizer._plot_results(final_results_df, log_dir)
+                Plotter.plot_results(final_results_df, log_dir)
 
         except Exception as e:
             logger.error(f"Error displaying results: {e}")
@@ -94,45 +93,3 @@ class ResultsSummarizer:
         except Exception as e:
             logger.error(f"Error reading JSON file {file_path}: {e}")
             return {}
-
-    @staticmethod
-    def _plot_results(results_df: pd.DataFrame, log_dir: str):
-        """
-        Plot comparison of RMSE and R² for all models using bar plots and save them to log_dir.
-
-        :param results_df: DataFrame containing the evaluation metrics for all models
-        :param log_dir: Directory to save the plots
-        """
-        # Plot and save RMSE comparison
-        if 'RMSE' in results_df.columns:
-            plt.figure(figsize=(12, 6))
-            sns.barplot(x=results_df.index, y=results_df['RMSE'])
-            plt.title('RMSE Comparison of Models', fontsize=16)
-            plt.ylabel('RMSE', fontsize=14)
-            plt.xticks(rotation=45)
-            plt.grid(True, linestyle='--', alpha=0.6)
-            plt.tight_layout()
-
-            # Save plot to log_dir
-            rmse_plot_path = os.path.join(log_dir, "RMSE_Comparison.png")
-            plt.savefig(rmse_plot_path)
-            logger.info(f"RMSE comparison plot saved to {rmse_plot_path}")
-            plt.close()
-
-        # Plot and save R² comparison
-        if 'R^2' in results_df.columns:
-            plt.figure(figsize=(12, 6))
-            sns.barplot(x=results_df.index, y=results_df['R^2'])
-            plt.title('R^2 Comparison of Models', fontsize=16)
-            plt.ylabel('R^2 Score', fontsize=14)
-            plt.xticks(rotation=45)
-            plt.grid(True, linestyle='--', alpha=0.6)
-            plt.tight_layout()
-
-            # Save plot to log_dir
-            r2_plot_path = os.path.join(log_dir, "R2_Comparison.png")
-            plt.savefig(r2_plot_path)
-            logger.info(f"R² comparison plot saved to {r2_plot_path}")
-            plt.close()
-
-        logger.info("RMSE and R^2 comparison plots generated and saved successfully.")

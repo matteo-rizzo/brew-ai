@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
-from src.classes.Logger import Logger
+from src.classes.utils.Logger import Logger
 
 logger = Logger()
 

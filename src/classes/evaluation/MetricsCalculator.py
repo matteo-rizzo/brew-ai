@@ -6,13 +6,13 @@ import numpy as np
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, mean_absolute_percentage_error, \
     explained_variance_score
 
-from src.classes.Logger import Logger
+from src.classes.utils.Logger import Logger
 
 # Initialize custom logger
 logger = Logger()
 
 
-class ModelEvaluator:
+class MetricsCalculator:
     """
     Evaluates the model performance by calculating evaluation metrics.
     """
@@ -22,9 +22,35 @@ class ModelEvaluator:
         """
         Calculate evaluation metrics for the model.
 
-        :param y_test: True target values
-        :param y_pred: Predicted target values
-        :return: A dictionary containing all calculated metrics
+        This method computes several performance metrics to evaluate regression models,
+        comparing the true target values (y_test) against the predicted values (y_pred):
+
+        - **R^2 (Coefficient of Determination)**: Measures how well the predicted values
+          approximate the real data. It ranges from 0 to 1, where a higher score indicates
+          better predictive accuracy. A negative value implies a worse fit than a horizontal line.
+
+        - **MSE (Mean Squared Error)**: The average of the squared differences between
+          actual and predicted values. It penalizes large errors more than smaller ones,
+          making it sensitive to outliers.
+
+        - **RMSE (Root Mean Squared Error)**: The square root of the mean squared error,
+          which provides a measure of how much error to expect in predictions. It's expressed
+          in the same units as the target variable, making it easier to interpret.
+
+        - **MAE (Mean Absolute Error)**: The average of the absolute differences between
+          actual and predicted values. MAE is less sensitive to outliers than MSE.
+
+        - **MAPE (Mean Absolute Percentage Error)**: The average of the absolute percentage
+          differences between actual and predicted values. It provides an indication of
+          how large the prediction errors are relative to the actual values, expressed as a percentage.
+
+        - **Explained Variance**: Measures the proportion of the variance in the target
+          variable that is predictable from the features. It ranges from 0 to 1, where 1
+          indicates perfect predictive accuracy.
+
+        :param y_test: True target values (NumPy array).
+        :param y_pred: Predicted target values (NumPy array).
+        :return: A dictionary containing all calculated metrics.
         """
         try:
             metrics = {
@@ -55,13 +81,13 @@ class ModelEvaluator:
         """
         try:
             # Calculate metrics
-            metrics = ModelEvaluator.calculate_metrics(y_test, y_pred)
+            metrics = MetricsCalculator.calculate_metrics(y_test, y_pred)
 
             # Log metrics as a table using Logger
             logger.log_metrics_table(model_name, metrics)
 
             # Save metrics to a JSON file
-            ModelEvaluator._save_metrics_to_json(model_name, metrics, log_dir)
+            MetricsCalculator._save_metrics_to_json(model_name, metrics, log_dir)
 
         except Exception as e:
             logger.error(f"Failed to evaluate the model {model_name}: {e}")

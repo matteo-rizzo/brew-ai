@@ -1,3 +1,4 @@
+import torch
 from pytorch_tabnet.tab_model import TabNetRegressor
 from rtdl import FTTransformer
 from tab_transformer_pytorch import TabTransformer
@@ -40,9 +41,16 @@ class ModelFactory:
 
             if self.model_name == "tabnet":
                 # TabNet Regressor
-                return TabNetRegressor(verbose=1, seed=RANDOM_SEED)
+                return TabNetRegressor(
+                    cat_idxs=list(range(24, 28)),
+                    cat_dims=[2, 2, 2, 2],
+                    scheduler_params={"step_size": 10, "gamma": 0.9},
+                    scheduler_fn=torch.optim.lr_scheduler.StepLR,
+                    verbose=1,
+                    seed=RANDOM_SEED
+                )
 
-            elif self.model_name == "node":
+            elif self.model_name == "fttransformer":
                 # Neural Oblivious Decision Ensembles (NODE)
                 return FTTransformer.make_baseline(
                     n_num_features=23,

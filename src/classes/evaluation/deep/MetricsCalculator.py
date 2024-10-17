@@ -3,8 +3,7 @@ import os
 from typing import Dict
 
 import numpy as np
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, mean_absolute_percentage_error, \
-    explained_variance_score
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
 
 from src.classes.utils.Logger import Logger
 
@@ -18,7 +17,7 @@ class MetricsCalculator:
     """
 
     @staticmethod
-    def calculate_metrics(y_test: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def _compute_metrics(y_test: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
         """
         Calculate evaluation metrics for the model.
 
@@ -58,8 +57,7 @@ class MetricsCalculator:
                 'MSE': mean_squared_error(y_test, y_pred),
                 'RMSE': np.sqrt(mean_squared_error(y_test, y_pred)),
                 'MAE': mean_absolute_error(y_test, y_pred),
-                'MAPE': mean_absolute_percentage_error(y_test, y_pred),
-                'Explained Variance': explained_variance_score(y_test, y_pred)
+                'MAPE': mean_absolute_percentage_error(y_test, y_pred)
             }
 
             logger.info("Metrics calculated successfully.")
@@ -70,7 +68,8 @@ class MetricsCalculator:
             raise
 
     @staticmethod
-    def evaluate_model(model_name: str, y_test: np.ndarray, y_pred: np.ndarray, log_dir: str, fold: int = None) -> None:
+    def calculate_metrics(model_name: str, y_test: np.ndarray, y_pred: np.ndarray, log_dir: str,
+                          fold: int = None) -> Dict:
         """
         Calculate and store evaluation metrics for each model and save to log_dir as a JSON file.
 
@@ -82,20 +81,21 @@ class MetricsCalculator:
         """
         try:
             # Calculate metrics
-            metrics = MetricsCalculator.calculate_metrics(y_test, y_pred)
+            metrics = MetricsCalculator._compute_metrics(y_test, y_pred)
 
             # Log metrics as a table using Logger
             logger.log_metrics_table(model_name, metrics)
 
             # Save metrics to a JSON file
-            MetricsCalculator._save_metrics_to_json(model_name, metrics, log_dir, fold)
+            MetricsCalculator.save_metrics_to_json(model_name, metrics, log_dir, fold)
 
+            return metrics
         except Exception as e:
             logger.error(f"Failed to evaluate the model {model_name}: {e}")
             raise
 
     @staticmethod
-    def _save_metrics_to_json(model_name: str, metrics: Dict[str, float], log_dir: str, fold: int) -> None:
+    def save_metrics_to_json(model_name: str, metrics: Dict[str, float], log_dir: str, fold: int = None) -> None:
         """
         Save the evaluation metrics to a JSON file in the log directory.
 
@@ -104,6 +104,7 @@ class MetricsCalculator:
         :param log_dir: Directory where the metrics will be saved
         :param fold: Current fold for logging
         """
+        fold = "" if fold is None else fold
         try:
             # Define the file path to save the metrics in JSON format
             metrics_file_path = os.path.join(log_dir, f"{model_name}{fold}_metrics.json")

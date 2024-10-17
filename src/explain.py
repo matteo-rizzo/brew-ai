@@ -5,7 +5,7 @@ from sklearn.pipeline import Pipeline
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.explanations.Explainer import Explainer
 from src.classes.utils.Logger import Logger
-from src.classes.evaluation.ModelConfigFactory import ModelConfigFactory
+from src.classes.evaluation.grid_search.ModelConfigFactory import ModelConfigFactory
 from src.functions.utils import make_model_subdirectory, make_log_dir, load_data, load_best_params
 from src.settings import RANDOM_SEED, TEST_SIZE, APPLY_PCA
 

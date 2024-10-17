@@ -1,9 +1,15 @@
+import warnings
+
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.evaluation.deep.CrossValidator import CrossValidator
 from src.classes.evaluation.deep.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
 from src.functions.utils import load_data, make_log_dir, make_model_subdirectory
 from src.settings import APPLY_PCA, MODEL_DEEP
+
+# Ignore warnings to keep the output clean
+warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', category=UserWarning)
 
 # Logger setup
 logger = Logger()

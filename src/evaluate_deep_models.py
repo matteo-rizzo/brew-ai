@@ -1,8 +1,9 @@
+import argparse
 import warnings
 
 from src.classes.data.DataPreprocessor import DataPreprocessor
-from src.classes.evaluation.deep.CrossValidator import CrossValidator
-from src.classes.evaluation.deep.ModelFactory import ModelFactory
+from src.classes.evaluation.deep_learning.CrossValidator import CrossValidator
+from src.classes.evaluation.deep_learning.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
 from src.functions.utils import load_data, make_log_dir, make_model_subdirectory
 from src.settings import APPLY_PCA, MODEL_DEEP
@@ -15,12 +16,13 @@ warnings.filterwarnings('ignore', category=UserWarning)
 logger = Logger()
 
 
-def main():
+def main(model_type):
     """
     Main function to run the unified framework
+    :param model_type: str - Type of model to use (e.g., 'TabNet', 'MLP', etc.)
     """
 
-    log_dir = make_model_subdirectory(model_name=MODEL_DEEP, log_dir=make_log_dir(log_type="evaluation_deep"))
+    log_dir = make_model_subdirectory(model_name=model_type, log_dir=make_log_dir(log_type="evaluation_deep"))
 
     # Load the dataset
     logger.info("Loading dataset...")
@@ -37,7 +39,7 @@ def main():
     x = preprocessor.fit_transform(x)
 
     # Initialize the model
-    model = ModelFactory(model_name=MODEL_DEEP).get_model()
+    model = ModelFactory(model_name=model_type).get_model()
 
     # Train the model
     trainer = CrossValidator(model, x, idx_num, idx_cat, y.to_numpy(), log_dir)
@@ -45,4 +47,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Argument parser setup
+    parser = argparse.ArgumentParser(description="Run deep_learning model cross-validation.")
+    parser.add_argument('--model-type', type=str, default=MODEL_DEEP)
+
+    args = parser.parse_args()
+
+    # Call main with the parsed model type
+    main(model_type=args.model_type)

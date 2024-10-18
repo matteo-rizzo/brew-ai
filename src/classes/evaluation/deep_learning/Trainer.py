@@ -9,19 +9,19 @@ from tab_transformer_pytorch import TabTransformer
 from torch import nn
 
 from src.classes.utils.Logger import Logger
-from src.settings import EPOCHS
+from src.settings import EPOCHS, LR
 
 logger = Logger()
 
 
 class Trainer:
     """
-    Handles training for various types of deep learning and machine learning models.
+    Handles training for various types of deep_learning learning and machine learning models.
     Supports TabNet, FTTransformer, TabTransformer, and other models.
     """
 
     def __init__(self, model: Union[torch.nn.Module, BaseEstimator], idx_num: List[int], idx_cat: List[int],
-                 epochs: int = EPOCHS, learning_rate: float = 1e-3):
+                 epochs: int = EPOCHS, learning_rate: float = LR):
         self.model = model
         self.idx_num = idx_num
         self.idx_cat = idx_cat
@@ -70,14 +70,13 @@ class Trainer:
         x_train_num_tensor, x_train_cat_tensor, y_train_tensor = self._convert_to_tensor(x_train, y_train)
 
         if model_type == "FTTransformer":
-            self._pytorch_train_loop(x_train_num_tensor, x_train_cat_tensor, y_train_tensor, model_type)
+            self._pytorch_train_loop(x_train_num_tensor, x_train_cat_tensor, y_train_tensor)
         else:
-            self._pytorch_train_loop(x_train_cat_tensor, x_train_num_tensor, y_train_tensor, model_type)
+            self._pytorch_train_loop(x_train_cat_tensor, x_train_num_tensor, y_train_tensor)
 
         logger.info(f"{model_type} training completed.")
 
-    def _pytorch_train_loop(self, x1_train: torch.Tensor, x2_train: torch.Tensor, y_train: torch.Tensor,
-                            model_type: str) -> None:
+    def _pytorch_train_loop(self, x1_train: torch.Tensor, x2_train: torch.Tensor, y_train: torch.Tensor) -> None:
         """
         General PyTorch training loop for models like FTTransformer and TabTransformer.
         x1_train and x2_train represent either numerical or categorical inputs depending on the model.
@@ -98,7 +97,7 @@ class Trainer:
             optimizer.step()
 
             if epoch % 10 == 0:  # Log progress every 10 epochs
-                logger.info(f"Epoch {epoch}/{self.epochs} - {model_type} Loss: {loss.item()}")
+                logger.info(f"Epoch {epoch}/{self.epochs} - Loss: {loss.item()}")
 
     def get_model(self):
         return self.model

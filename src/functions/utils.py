@@ -39,7 +39,7 @@ def load_best_params(model_name: str, log_dir: str) -> dict:
         raise
 
 
-def load_data() -> Tuple[pd.DataFrame, pd.Series]:
+def load_data(path_to_data: str = DATASET) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Load the dataset from the CSV file defined in the settings.
 
@@ -47,7 +47,7 @@ def load_data() -> Tuple[pd.DataFrame, pd.Series]:
     """
     try:
         logger.info("Loading dataset...")
-        df = pd.read_csv(DATASET, index_col=False)
+        df = pd.read_csv(path_to_data, index_col=False)
         x = df.drop(columns=[TARGET, "Unnamed: 0"], errors='ignore')  # Use 'ignore' to avoid KeyErrors
         y = df[TARGET]
 

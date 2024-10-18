@@ -12,7 +12,7 @@ logger = Logger()
 
 class ModelFactory:
     """
-    Factory class to initialize deep learning models based on the selected strategy.
+    Factory class to initialize deep_learning learning models based on the selected strategy.
 
     Supports the following models:
     - TabNet

@@ -5,7 +5,7 @@ from src.classes.evaluation.periodicity.feature_selector.FeatureSelector import 
 
 
 class AttentionPeriodicityFeatureSelector(FeatureSelector):
-    def __init__(self, input_size: int, embed_size: int = 64, num_heads: int = 8, num_layers: int = 6,
+    def __init__(self, input_size: int, embed_size: int = 8, num_heads: int = 4, num_layers: int = 2,
                  dropout: float = 0.2):
         """
         Enhanced Attention-based PeriodicityFeatureSelector using multi-layer self-attention over features.
@@ -19,16 +19,9 @@ class AttentionPeriodicityFeatureSelector(FeatureSelector):
         super(AttentionPeriodicityFeatureSelector, self).__init__()
         self.input_size = input_size
         self.embed_size = embed_size
-        self.num_heads = num_heads
-        self.num_layers = num_layers
 
-        # Feature-wise MLP Embedding
-        self.embedding = nn.Sequential(
-            nn.Linear(1, embed_size),
-            nn.ReLU(),
-            nn.Linear(embed_size, embed_size),
-            nn.ReLU()
-        )
+        # Feature-wise Embedding
+        self.embedding = nn.Sequential(nn.Linear(1, embed_size))
 
         # Batch Normalization after embedding
         self.batch_norm = nn.BatchNorm1d(embed_size)

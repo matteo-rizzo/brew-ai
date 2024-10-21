@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 from src.classes.evaluation.periodicity.factories.FeatureSelectorFactory import FeatureSelectorFactory
-from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevLayer import ChebyshevLayer
+from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevLayer import AdaptiveChebyshevLayer
 from src.classes.evaluation.periodicity.models.fourier.FourierLayer import FourierLayer
 
 
@@ -12,8 +12,8 @@ class AutoPNPLayer(nn.Module):
             input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
-            feature_selector: str = "gating",
-            feature_selection_before_transform: bool = False
+            feature_selector: str = "default",
+            feature_selection_before_transform: bool = True
     ):
         """
         AutoPNPNet that integrates Fourier and Chebyshev layers with feature selection, embeddings, and an MLP regressor.
@@ -29,7 +29,7 @@ class AutoPNPLayer(nn.Module):
 
         # Fourier and Chebyshev layers
         self.fourier_layer = FourierLayer(input_size, num_fourier_features)
-        self.chebyshev_layer = ChebyshevLayer(input_size, num_chebyshev_terms)
+        self.chebyshev_layer = AdaptiveChebyshevLayer(input_size, num_chebyshev_terms)
 
         # Feature selector initialization
         self.feature_selector = FeatureSelectorFactory.get_feature_selector(feature_selector, input_size)
@@ -54,7 +54,7 @@ class AutoPNPLayer(nn.Module):
             x_fourier, x_chebyshev = self.feature_selector.apply_gating(
                 x_fourier, x_chebyshev, periodicity_scores,
                 self.fourier_layer.num_features_per_input * 2,  # Fourier features per input
-                self.chebyshev_layer.num_terms  # Chebyshev terms
+                self.chebyshev_layer.max_terms  # Chebyshev terms
             )
 
         # Combine Fourier and Chebyshev transformed features

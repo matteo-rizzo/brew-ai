@@ -13,10 +13,7 @@ def main(model_type: str):
         logger.info(f"Starting the evaluation process with model: {model_type}")
 
         # Prepare directories for logging
-        log_dir = make_model_subdirectory(
-            model_name=model_type,
-            log_dir=make_log_dir(log_type="evaluation_periodicity")
-        )
+        log_dir = make_log_dir(log_type=model_type)
         logger.info(f"Logging directory created at {log_dir}")
 
         # Load data

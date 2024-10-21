@@ -39,7 +39,7 @@ class Trainer:
 
         # Learning rate scheduler
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            self.optimizer, mode='min', patience=scheduler_patience, factor=0.1
+            self.optimizer, mode='min', patience=scheduler_patience, factor=0.05
         )
 
     def train(self, train_data: Dict[str, torch.Tensor], val_data: Dict[str, torch.Tensor]) -> Tuple[

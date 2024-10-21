@@ -1,7 +1,7 @@
 from torch import nn, Tensor
 
-from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevLayer import ChebyshevLayer
-from src.classes.evaluation.periodicity.models.mlp.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevConvLayer import AdaptiveChebyshevConvLayer
+from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
 class ChebyshevNet(nn.Module):
@@ -14,18 +14,18 @@ class ChebyshevNet(nn.Module):
         """
         super(ChebyshevNet, self).__init__()
 
-        self.chebyshev_layer = ChebyshevLayer(input_size, num_chebyshev_terms, normalize=True)
+        self.chebyshev_layer = AdaptiveChebyshevConvLayer(input_size, num_chebyshev_terms)
 
         total_features = input_size * num_chebyshev_terms  # Total number of Chebyshev features
 
         # MLPRegressor for handling the fully connected layers
-        self.mlp_regressor = MLPRegressor(total_features)
+        self.regressor = MLPRegressor(total_features)
 
     def forward(self, x: Tensor, *args, **kwargs) -> Tensor:
         # Apply Chebyshev transformation
         x_chebyshev = self.chebyshev_layer(x)
 
         # Pass through the MLP regressor
-        out = self.mlp_regressor(x_chebyshev)
+        out = self.regressor(x_chebyshev)
 
         return out

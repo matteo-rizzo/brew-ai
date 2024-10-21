@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 from src.classes.evaluation.periodicity.models.fourier.FourierLayer import FourierLayer
-from src.classes.evaluation.periodicity.models.mlp.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
 class FourierNet(nn.Module):
@@ -21,13 +21,13 @@ class FourierNet(nn.Module):
         total_features = input_size * num_fourier_features * 2  # We have sine and cosine outputs
 
         # MLPRegressor for handling the fully connected layers
-        self.mlp_regressor = MLPRegressor(total_features)
+        self.regressor = MLPRegressor(total_features)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Apply Fourier transformation to input features
         x_fourier = self.fourier_layer(x)
 
         # Pass through the MLP regressor
-        out = self.mlp_regressor(x_fourier)
+        out = self.regressor(x_fourier)
 
         return out

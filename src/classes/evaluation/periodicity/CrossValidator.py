@@ -7,9 +7,9 @@ from sklearn.model_selection import KFold
 from torch import nn, optim
 
 from src.classes.evaluation.periodicity.Evaluator import Evaluator
-from src.classes.evaluation.periodicity.factories.ModelFactory import ModelFactory
 from src.classes.evaluation.periodicity.Splitter import Splitter
 from src.classes.evaluation.periodicity.Trainer import Trainer
+from src.classes.evaluation.periodicity.factories.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
@@ -107,7 +107,7 @@ class CrossValidator:
         y_train_val, y_test = self.y[train_val_index], self.y[test_index]
 
         splitter = Splitter(x_train_val, y_train_val, self.idx_num, self.idx_cat, self.idx_periodic,
-                            self.idx_non_periodic, test_size=0.1, val_size=0.1)
+                            self.idx_non_periodic)
 
         split_data = splitter.split()
         test_data = {

@@ -1,9 +1,11 @@
 import torch
 from torch import nn
+from torch.nn.functional import embedding
 
 from src.classes.evaluation.periodicity.embedding.FeatureEmbedding import FeatureEmbedding
+from src.classes.evaluation.periodicity.factories.FeatureEmbeddingFactory import FeatureEmbeddingFactory
 from src.classes.evaluation.periodicity.models.autopnp.AutoPNPLayer import AutoPNPLayer
-from src.classes.evaluation.periodicity.models.mlp.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
 class AutoPNPNet(nn.Module):
@@ -12,7 +14,8 @@ class AutoPNPNet(nn.Module):
             input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
-            use_feature_embeddings: bool = True
+            use_feature_embeddings: bool = True,
+            embedding_type = "deep"
     ):
         """
         AutoPNPNet that integrates Fourier and Chebyshev layers with feature selection, embeddings, and an MLP regressor.
@@ -29,7 +32,7 @@ class AutoPNPNet(nn.Module):
 
         # Feature embedding (optional)
         if self.use_feature_embeddings:
-            self.feature_embedding = FeatureEmbedding(input_size)
+            self.feature_embedding = FeatureEmbeddingFactory.get_feature_embedding(embedding_type, input_size)
             input_size = self.feature_embedding.get_embedding_dim()
 
         # Fourier and Chebyshev layers

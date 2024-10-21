@@ -6,15 +6,28 @@ from src.classes.evaluation.periodicity.models.chebyshev.ModelChebyshevNet impor
 from src.classes.evaluation.periodicity.models.chebyshev.ModelTabChebyshevNet import ModelTabChebyshevNet
 from src.classes.evaluation.periodicity.models.fourier.ModelFourierNet import ModelFourierNet
 from src.classes.evaluation.periodicity.models.fourier.ModelTabFourierNet import ModelTabFourierNet
+from src.classes.evaluation.periodicity.models.hermite.ModelHermiteNet import ModelHermiteNet
 from src.classes.evaluation.periodicity.models.pnp.ModelPNPNet import ModelPNPNet
 from src.classes.evaluation.periodicity.models.pnp.ModelTabPNPNet import ModelTabPNPNet
 
 
 class ModelFactory:
 
-    def __init__(self, num_periodic_input_size: int, num_non_periodic_input_size: int, cat_input_size: int,
-                 num_fourier_features: int = 16, num_chebyshev_terms: int = 5, hidden_size: int = 32):
+    def __init__(
+            self,
+            num_periodic_input_size: int,
+            num_non_periodic_input_size: int,
+            cat_input_size: int,
+            num_fourier_features: int = 15,
+            num_chebyshev_terms: int = 3,
+            hermite_degree: int = 3,
+            hidden_size: int = 256
+    ):
         self.models = {
+            "hnet": ModelHermiteNet(
+                input_size=num_periodic_input_size + num_non_periodic_input_size,
+                hermite_degree=hermite_degree
+            ),
             "fnet": ModelFourierNet(
                 input_size=num_periodic_input_size + num_non_periodic_input_size,
                 num_fourier_features=num_fourier_features

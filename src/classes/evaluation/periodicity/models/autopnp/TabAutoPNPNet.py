@@ -1,10 +1,10 @@
 import torch
 from torch import nn
 
-from src.classes.evaluation.periodicity.embedding.FeatureEmbedding import FeatureEmbedding
+from src.classes.evaluation.periodicity.factories.FeatureEmbeddingFactory import FeatureEmbeddingFactory
 from src.classes.evaluation.periodicity.models.autopnp.AutoPNPLayer import AutoPNPLayer
-from src.classes.evaluation.periodicity.models.mlp.CategoricalMLP import CategoricalMLP
-from src.classes.evaluation.periodicity.models.mlp.TabMLP import TabMLP
+from src.classes.evaluation.periodicity.models.categorical.CategoricalTransformer import CategoricalTransformer
+from src.classes.evaluation.periodicity.models.regressor.TabMLPRegressor import TabMLPRegressor
 
 
 class TabAutoPNPNet(nn.Module):
@@ -15,7 +15,8 @@ class TabAutoPNPNet(nn.Module):
             num_fourier_features: int,
             num_chebyshev_terms: int,
             hidden_size: int,
-            use_feature_embeddings: bool = True
+            use_feature_embeddings: bool = True,
+            embedding_type: str = "linear"
     ):
         """
         TabAutoPNPNet: Extends AutoPNPNet to support both continuous and one-hot encoded categorical features.
@@ -36,14 +37,15 @@ class TabAutoPNPNet(nn.Module):
 
         # Feature embedding (optional)
         if self.use_feature_embeddings:
-            self.feature_embedding = FeatureEmbedding(continuous_input_size)
+            self.feature_embedding = FeatureEmbeddingFactory.get_feature_embedding(embedding_type,
+                                                                                   continuous_input_size)
             continuous_input_size = self.feature_embedding.get_embedding_dim()
 
         # Fourier and Chebyshev layers
         self.autopnp_layer = AutoPNPLayer(continuous_input_size, num_fourier_features, num_chebyshev_terms)
 
         # MLP for one-hot encoded categorical features
-        self.categorical_mlp = CategoricalMLP(categorical_input_size, hidden_size)
+        self.categorical_layer = CategoricalTransformer(categorical_input_size, hidden_size)
 
         # Feature dimensions after transformations
         total_fourier_features = num_fourier_features * 2 * continuous_input_size  # Fourier has sine and cosine
@@ -51,8 +53,8 @@ class TabAutoPNPNet(nn.Module):
         categorical_input_size = hidden_size
         total_features = total_fourier_features + total_chebyshev_features + categorical_input_size
 
-        # TabMLP for combined processing
-        self.tab_mlp: TabMLP = TabMLP(total_features)
+        # TabMLPRegressor for combined processing
+        self.tab_mlp: TabMLPRegressor = TabMLPRegressor(total_features)
 
         # Residual connection layer for continuous features
         self.residual_layer = nn.Linear(total_fourier_features + total_chebyshev_features, 1)
@@ -70,7 +72,7 @@ class TabAutoPNPNet(nn.Module):
         residual = self.residual_layer(x_continuous_combined)
 
         # Process one-hot encoded categorical features through MLP
-        x_categorical_processed = self.categorical_mlp(x_categorical)  # Shape: [batch_size, hidden_size]
+        x_categorical_processed = self.categorical_layer(x_categorical)  # Shape: [batch_size, hidden_size]
 
         # Combine continuous and categorical features
         x_combined = torch.cat([x_continuous_combined, x_categorical_processed], dim=1)

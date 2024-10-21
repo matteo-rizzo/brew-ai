@@ -1,9 +1,13 @@
 import torch
 from torch import nn
 
+from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevAttentionLayer import \
+    AdaptiveChebyshevAttentionLayer
+from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevConvLayer import AdaptiveChebyshevConvLayer
+from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevLayer import AdaptiveChebyshevLayer
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevLayer import ChebyshevLayer
 from src.classes.evaluation.periodicity.models.fourier.FourierLayer import FourierLayer
-from src.classes.evaluation.periodicity.models.mlp.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
 class PNPNet(nn.Module):
@@ -26,14 +30,14 @@ class PNPNet(nn.Module):
 
         # Fourier and Chebyshev layers
         self.fourier_layer = FourierLayer(periodic_input_size, num_fourier_features)
-        self.chebyshev_layer = ChebyshevLayer(non_periodic_input_size, num_chebyshev_terms)
+        self.chebyshev_layer = AdaptiveChebyshevLayer(non_periodic_input_size, num_chebyshev_terms)
 
         total_fourier_features = periodic_input_size * num_fourier_features * 2
         total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms
         total_features = total_fourier_features + total_chebyshev_features
 
         # MLPRegressor for handling the fully connected layers
-        self.mlp_regressor = MLPRegressor(total_features)
+        self.regressor = MLPRegressor(total_features)
 
     def forward(self, x_periodic: torch.Tensor, x_non_periodic: torch.Tensor) -> torch.Tensor:
         # Apply Fourier transformation to periodic features
@@ -46,6 +50,6 @@ class PNPNet(nn.Module):
         x_combined = torch.cat([x_fourier, x_chebyshev], dim=-1)  # Shape: [batch_size, total_features]
 
         # Pass through the MLP regressor
-        out = self.mlp_regressor(x_combined)
+        out = self.regressor(x_combined)
 
         return out

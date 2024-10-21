@@ -4,19 +4,19 @@ from torch import nn
 from src.classes.evaluation.periodicity.factories.ActivationFactory import ActivationFactory
 
 
-class TabMLP(nn.Module):
+class TabMLPRegressor(nn.Module):
     def __init__(
             self,
             input_size: int,
             hidden_size: int = 64,
-            num_layers: int = 3,
+            num_layers: int = 2,
             dropout_prob: float = 0.2,
             batch_norm: bool = True,
-            activation: str = 'SiLU',
+            activation: str = 'ReLU',
             output_size: int = 1
     ):
         """
-        TabMLP class to handle the combined processing of continuous and categorical features.
+        TabMLPRegressor class to handle the combined processing of continuous and categorical features.
 
         :param input_size: Total number of input features (continuous + categorical).
         :param hidden_size: Size of the hidden layers.
@@ -26,7 +26,7 @@ class TabMLP(nn.Module):
         :param activation: The activation function to apply between layers ('ReLU', 'SiLU', etc.).
         :param output_size: Size of the output layer (default 1 for regression).
         """
-        super(TabMLP, self).__init__()
+        super(TabMLPRegressor, self).__init__()
 
         layers = []
         for _ in range(num_layers):

@@ -1,11 +1,11 @@
 import torch
 from sklearn.model_selection import train_test_split
 
-from src.config import RANDOM_SEED, DEVICE
+from src.config import RANDOM_SEED, DEVICE, TEST_SIZE, VAL_SIZE
 
 
 class Splitter:
-    def __init__(self, x, y, idx_num, idx_cat, idx_periodic, idx_non_periodic, test_size=0.1, val_size=0.1):
+    def __init__(self, x, y, idx_num, idx_cat, idx_periodic, idx_non_periodic):
         """
         Splitter class to handle data splitting and feature separation.
 
@@ -15,8 +15,6 @@ class Splitter:
         :param idx_cat: List of indices for categorical features.
         :param idx_periodic: List of indices for periodic numerical features.
         :param idx_non_periodic: List of indices for non-periodic numerical features.
-        :param test_size: Proportion of the dataset to include in the test split.
-        :param val_size: Proportion of the training data to include in the validation split.
         """
         self.x = x
         self.y = y
@@ -24,8 +22,8 @@ class Splitter:
         self.idx_cat = idx_cat
         self.idx_periodic = idx_periodic
         self.idx_non_periodic = idx_non_periodic
-        self.test_size = test_size
-        self.val_size = val_size
+        self.test_size = TEST_SIZE
+        self.val_size = VAL_SIZE
         self.random_state = RANDOM_SEED
         self.device = DEVICE
 

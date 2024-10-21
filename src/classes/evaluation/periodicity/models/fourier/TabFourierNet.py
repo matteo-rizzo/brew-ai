@@ -1,9 +1,9 @@
 import torch
 from torch import nn
 
+from src.classes.evaluation.periodicity.models.categorical.CategoricalTransformer import CategoricalTransformer
 from src.classes.evaluation.periodicity.models.fourier.FourierLayer import FourierLayer
-from src.classes.evaluation.periodicity.models.mlp.CategoricalMLP import CategoricalMLP
-from src.classes.evaluation.periodicity.models.mlp.TabMLP import TabMLP
+from src.classes.evaluation.periodicity.models.regressor.TabMLPRegressor import TabMLPRegressor
 
 
 class TabFourierNet(nn.Module):
@@ -21,9 +21,6 @@ class TabFourierNet(nn.Module):
         :param categorical_input_size: Number of one-hot encoded categorical features.
         :param num_fourier_features: Number of Fourier features to learn.
         :param hidden_size: Size of hidden layers.
-        :param num_layers: Number of hidden layers in the MLP.
-        :param dropout_prob: Dropout probability for regularization.
-        :param batch_norm: Whether to use batch normalization.
         """
         super().__init__()
 
@@ -31,14 +28,14 @@ class TabFourierNet(nn.Module):
         self.fourier_layer = FourierLayer(continuous_input_size, num_fourier_features)
 
         # Categorical MLP for processing one-hot encoded categorical features
-        self.categorical_mlp = CategoricalMLP(categorical_input_size, hidden_size)
+        self.categorical_layer = CategoricalTransformer(categorical_input_size, hidden_size)
 
         # Update total feature size (continuous + categorical)
         total_continuous_features = continuous_input_size * num_fourier_features * 2
         total_features = total_continuous_features + hidden_size  # Hidden size of processed categorical features
 
-        # TabMLP for combined processing
-        self.tab_mlp: TabMLP = TabMLP(total_features)
+        # TabMLPRegressor for combined processing
+        self.tab_mlp: TabMLPRegressor = TabMLPRegressor(total_features)
 
     def forward(self, x_continuous: torch.Tensor, x_categorical: torch.Tensor) -> torch.Tensor:
         """
@@ -52,7 +49,7 @@ class TabFourierNet(nn.Module):
         x_fourier = self.fourier_layer(x_continuous)  # Shape: [batch_size, total_fourier_features]
 
         # Process one-hot encoded categorical features through MLP
-        x_categorical_processed = self.categorical_mlp(x_categorical)  # Shape: [batch_size, hidden_size]
+        x_categorical_processed = self.categorical_layer(x_categorical)  # Shape: [batch_size, hidden_size]
 
         # Combine Fourier and categorical features
         x_combined = torch.cat([x_fourier, x_categorical_processed], dim=1)  # Shape: [batch_size, total_features]

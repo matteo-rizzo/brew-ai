@@ -9,7 +9,7 @@ from tab_transformer_pytorch import TabTransformer
 from torch import nn
 
 from src.classes.utils.Logger import Logger
-from src.settings import EPOCHS, LR
+from src.config import EPOCHS, LR
 
 logger = Logger()
 

@@ -4,7 +4,7 @@ from rtdl import FTTransformer
 from tab_transformer_pytorch import TabTransformer
 
 from src.classes.utils.Logger import Logger
-from src.settings import RANDOM_SEED
+from src.config import RANDOM_SEED
 
 # Logger setup
 logger = Logger()

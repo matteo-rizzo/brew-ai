@@ -8,7 +8,7 @@ from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 from src.classes.utils.Logger import Logger
-from src.settings import RANDOM_SEED, MAX_ITERATIONS
+from src.config import RANDOM_SEED, MAX_ITERATIONS
 
 
 class ModelConfigFactory:

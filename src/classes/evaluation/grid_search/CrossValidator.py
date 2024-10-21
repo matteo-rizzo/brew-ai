@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV
 
 from src.classes.utils.Logger import Logger
-from src.settings import CV_METRICS
+from src.config import CV_METRICS
 
 # Initialize custom logger
 logger = Logger()

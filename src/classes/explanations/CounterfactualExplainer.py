@@ -8,7 +8,7 @@ from dice_ml import Dice
 from sklearn.base import BaseEstimator
 
 from src.classes.utils.Logger import Logger
-from src.settings import TARGET
+from src.config import TARGET
 
 # Initialize custom logger
 logger = Logger()

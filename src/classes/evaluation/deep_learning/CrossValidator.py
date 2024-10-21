@@ -7,10 +7,10 @@ from sklearn.base import BaseEstimator
 from sklearn.model_selection import KFold
 
 from src.classes.evaluation.deep_learning.Evaluator import Evaluator
-from src.classes.evaluation.deep_learning.MetricsCalculator import MetricsCalculator
+from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.evaluation.deep_learning.Trainer import Trainer
 from src.classes.utils.Logger import Logger
-from src.settings import RANDOM_SEED
+from src.config import RANDOM_SEED
 
 logger = Logger()
 

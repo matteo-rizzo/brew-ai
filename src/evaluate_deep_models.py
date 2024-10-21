@@ -6,7 +6,7 @@ from src.classes.evaluation.deep_learning.CrossValidator import CrossValidator
 from src.classes.evaluation.deep_learning.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
 from src.functions.utils import load_data, make_log_dir, make_model_subdirectory
-from src.settings import APPLY_PCA, MODEL_DEEP
+from src.config import APPLY_PCA, MODEL_DEEP
 
 # Ignore warnings to keep the output clean
 warnings.filterwarnings('ignore')
@@ -49,7 +49,7 @@ def main(model_type):
 if __name__ == "__main__":
     # Argument parser setup
     parser = argparse.ArgumentParser(description="Run deep_learning model cross-validation.")
-    parser.add_argument('--model-type', type=str, default=MODEL_DEEP)
+    parser.add_argument('--model_type', type=str, default=MODEL_DEEP)
 
     args = parser.parse_args()
 

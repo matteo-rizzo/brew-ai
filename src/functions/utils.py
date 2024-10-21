@@ -4,9 +4,11 @@ import time
 from typing import Tuple
 
 import pandas as pd
+from scipy.signal import find_peaks
+from statsmodels.tsa.stattools import acf
 
 from src.classes.utils.Logger import Logger
-from src.settings import DATASET, TARGET, BASE_LOG_DIR
+from src.config import DATASET, TARGET, BASE_LOG_DIR
 
 # Initialize custom logger
 logger = Logger()
@@ -99,3 +101,9 @@ def make_model_subdirectory(model_name: str, log_dir: str) -> str:
     except OSError as e:
         logger.error(f"Failed to create model subdirectory at {model_log_dir}. Error: {e}")
         raise
+
+
+def detect_periodicity_acf(series, lag_limit=50):
+    autocorr = acf(series, nlags=lag_limit, fft=True)
+    peaks, _ = find_peaks(autocorr[1:])  # Exclude lag 0
+    return len(peaks) > 0

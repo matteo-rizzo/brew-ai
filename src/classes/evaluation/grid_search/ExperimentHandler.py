@@ -10,7 +10,7 @@ from src.classes.evaluation.grid_search.CrossValidator import CrossValidator
 from src.classes.evaluation.grid_search.ModelConfigFactory import ModelConfigFactory
 from src.classes.utils.Logger import Logger
 from src.functions.utils import make_model_subdirectory
-from src.settings import CV_METRICS, NUM_FOLDS
+from src.config import CV_METRICS, NUM_FOLDS
 
 logger = Logger()
 

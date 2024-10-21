@@ -6,7 +6,7 @@ from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.evaluation.grid_search.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
 from src.functions.utils import make_log_dir, load_data
-from src.settings import BASE_LOG_DIR, APPLY_PCA
+from src.config import BASE_LOG_DIR, APPLY_PCA
 
 # Ignore warnings to keep the output clean
 warnings.filterwarnings('ignore')

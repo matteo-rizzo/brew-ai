@@ -133,3 +133,26 @@ class Plotter:
             r2_plot_path = os.path.join(save_path, "R2_Comparison.png")
             plt.savefig(r2_plot_path)
             plt.close()
+
+    @staticmethod
+    def plot_and_save_losses(train_losses: list, val_losses: list, fold: int, save_path: str):
+        """
+        Plot and save training and validation losses to the specified log directory.
+
+        :param train_losses: List of training losses over epochs.
+        :param val_losses: List of validation losses over epochs.
+        :param fold: The current fold number for cross-validation.
+        :param save_path: Log path to save the plot
+        """
+        plt.figure(figsize=(10, 6))
+        plt.plot(train_losses, label='Train Loss')
+        plt.plot(val_losses, label='Validation Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.title(f'Train and Validation Losses for Fold {fold + 1}')
+        plt.legend()
+
+        # Save the plot to the log directory
+        plot_file_path = f"{save_path}/loss_plot_fold_{fold + 1}.png"
+        plt.savefig(plot_file_path)
+        plt.close()

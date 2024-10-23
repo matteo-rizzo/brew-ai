@@ -8,15 +8,14 @@ BASE_LOG_DIR = "logs"
 RANDOM_SEED = 0
 NUM_FOLDS = 5
 APPLY_PCA = False
-TEST_SIZE = 0.15
-VAL_SIZE = 0.1
+TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Deep Learning Models
 MODEL_DEEP = "tabnet"  # 'tabnet', 'fttransformer', 'tabtransformer'
-MODEL_PERIODICITY = "fnet"
-EPOCHS = 10000
-LR = 0.01
+MODEL_PERIODICITY = "tabfnet"
+EPOCHS = 5000
+LR = 0.05
 BATCH_SIZE = 512
 
 # Grid Search

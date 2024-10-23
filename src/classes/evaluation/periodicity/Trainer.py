@@ -12,7 +12,7 @@ logger = Logger()
 
 class Trainer:
     def __init__(self, model: nn.Module, model_name: str, criterion, optimizer, batch_size: int = 32,
-                 num_epochs: int = 1000, early_stopping: bool = True, patience: int = 100,
+                 num_epochs: int = 5000, early_stopping: bool = True, patience: int = 1000,
                  scheduler_patience: int = 10):
         """
         Trainer class to handle model training and validation.
@@ -39,7 +39,7 @@ class Trainer:
 
         # Learning rate scheduler
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            self.optimizer, mode='min', patience=scheduler_patience, factor=0.05
+            self.optimizer, mode='min', patience=scheduler_patience, factor=0.1
         )
 
     def train(self, train_data: Dict[str, torch.Tensor], val_data: Dict[str, torch.Tensor]) -> Tuple[

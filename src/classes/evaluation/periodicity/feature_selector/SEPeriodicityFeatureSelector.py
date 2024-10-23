@@ -4,7 +4,7 @@ from src.classes.evaluation.periodicity.feature_selector.FeatureSelector import 
 
 
 class SEPeriodicityFeatureSelector(FeatureSelector):
-    def __init__(self, input_size, hidden_size=64, reduction_ratio=16, num_layers=2):
+    def __init__(self, input_size, hidden_size=32, reduction_ratio=2, num_layers=1):
         """
         Enhanced PeriodicityFeatureSelector using Squeeze-and-Excitation blocks.
 
@@ -20,7 +20,7 @@ class SEPeriodicityFeatureSelector(FeatureSelector):
         in_features = input_size
         for _ in range(num_layers):
             layers.append(nn.Linear(in_features, hidden_size))
-            layers.append(nn.SiLU())
+            layers.append(nn.ReLU())
             in_features = hidden_size
 
         # Feature transformation

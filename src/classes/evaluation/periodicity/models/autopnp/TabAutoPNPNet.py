@@ -3,7 +3,7 @@ from torch import nn
 
 from src.classes.evaluation.periodicity.factories.FeatureEmbeddingFactory import FeatureEmbeddingFactory
 from src.classes.evaluation.periodicity.models.autopnp.AutoPNPLayer import AutoPNPLayer
-from src.classes.evaluation.periodicity.models.categorical.CategoricalTransformer import CategoricalTransformer
+from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
 from src.classes.evaluation.periodicity.models.regressor.TabMLPRegressor import TabMLPRegressor
 
 
@@ -15,7 +15,7 @@ class TabAutoPNPNet(nn.Module):
             num_fourier_features: int,
             num_chebyshev_terms: int,
             hidden_size: int,
-            use_feature_embeddings: bool = True,
+            use_feature_embeddings: bool = False,
             embedding_type: str = "linear"
     ):
         """
@@ -45,7 +45,7 @@ class TabAutoPNPNet(nn.Module):
         self.autopnp_layer = AutoPNPLayer(continuous_input_size, num_fourier_features, num_chebyshev_terms)
 
         # MLP for one-hot encoded categorical features
-        self.categorical_layer = CategoricalTransformer(categorical_input_size, hidden_size)
+        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size)
 
         # Feature dimensions after transformations
         total_fourier_features = num_fourier_features * 2 * continuous_input_size  # Fourier has sine and cosine
@@ -54,7 +54,7 @@ class TabAutoPNPNet(nn.Module):
         total_features = total_fourier_features + total_chebyshev_features + categorical_input_size
 
         # TabMLPRegressor for combined processing
-        self.tab_mlp: TabMLPRegressor = TabMLPRegressor(total_features)
+        self.regressor = TabMLPRegressor(total_features)
 
         # Residual connection layer for continuous features
         self.residual_layer = nn.Linear(total_fourier_features + total_chebyshev_features, 1)
@@ -78,7 +78,7 @@ class TabAutoPNPNet(nn.Module):
         x_combined = torch.cat([x_continuous_combined, x_categorical_processed], dim=1)
 
         # Pass through fully connected layers
-        out = self.tab_mlp(x_combined)
+        out = self.regressor(x_combined)
 
         # Add residual (only from continuous features)
         out += residual

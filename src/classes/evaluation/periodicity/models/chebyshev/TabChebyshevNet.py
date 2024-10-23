@@ -1,6 +1,7 @@
 import torch
 from torch import Tensor, nn
 
+from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
 from src.classes.evaluation.periodicity.models.categorical.CategoricalTransformer import CategoricalTransformer
 from src.classes.evaluation.periodicity.models.chebyshev.AdaptiveChebyshevLayer import AdaptiveChebyshevLayer
 from src.classes.evaluation.periodicity.models.regressor.TabMLPRegressor import TabMLPRegressor
@@ -28,14 +29,14 @@ class TabChebyshevNet(nn.Module):
         self.chebyshev_layer = AdaptiveChebyshevLayer(continuous_input_size, num_chebyshev_terms, normalize=True)
 
         # Layer processing categorical features
-        self.categorical_layer = CategoricalTransformer(categorical_input_size, hidden_size)
+        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size)
 
         # Update total feature size (continuous + categorical)
         total_continuous_features: int = continuous_input_size * num_chebyshev_terms
         total_features: int = total_continuous_features + hidden_size  # Hidden size of processed categorical features
 
         # TabMLPRegressor for combined processing
-        self.tab_mlp: TabMLPRegressor = TabMLPRegressor(total_features)
+        self.regressor = TabMLPRegressor(total_features)
 
     def forward(self, x_continuous: Tensor, x_categorical: Tensor, *args, **kwargs) -> Tensor:
         """
@@ -55,4 +56,4 @@ class TabChebyshevNet(nn.Module):
         x_combined: Tensor = torch.cat([x_chebyshev, x_categorical_processed], dim=1)
 
         # Pass combined features through the TabMLPRegressor
-        return self.tab_mlp(x_combined)
+        return self.regressor(x_combined)

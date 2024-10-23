@@ -7,7 +7,7 @@ from sklearn.model_selection import KFold
 from torch import nn, optim
 
 from src.classes.evaluation.periodicity.Evaluator import Evaluator
-from src.classes.evaluation.periodicity.Splitter import Splitter
+from src.classes.evaluation.periodicity.DataSplitter import DataSplitter
 from src.classes.evaluation.periodicity.Trainer import Trainer
 from src.classes.evaluation.periodicity.factories.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
@@ -106,14 +106,14 @@ class CrossValidator:
         x_train_val, x_test = self.x[train_val_index], self.x[test_index]
         y_train_val, y_test = self.y[train_val_index], self.y[test_index]
 
-        splitter = Splitter(x_train_val, y_train_val, self.idx_num, self.idx_cat, self.idx_periodic,
+        splitter = DataSplitter(x_train_val, y_train_val, self.idx_num, self.idx_cat, self.idx_periodic,
                             self.idx_non_periodic)
 
         split_data = splitter.split()
         test_data = {
             'x_num_p': torch.tensor(x_test[:, self.idx_num][:, self.idx_periodic], dtype=torch.float32).to(DEVICE),
             'x_num_np': torch.tensor(x_test[:, self.idx_num][:, self.idx_non_periodic], dtype=torch.float32).to(DEVICE),
-            'x_cat': torch.tensor(x_test[:, self.idx_cat], dtype=torch.float32).to(DEVICE),
+            'x_cat': torch.tensor(x_test[:, self.idx_cat], dtype=torch.int8).to(DEVICE),
             'y': torch.tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(DEVICE)
         }
         input_sizes = split_data['input_sizes']

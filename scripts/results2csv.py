@@ -10,8 +10,8 @@ from rich import box
 console = Console()
 
 # Directory where evaluation results are stored
-BASE_DIR = 'results/evaluation_pca'
-AGGREGATED_CSV_PATH = 'logs/aggregated_results_pca.csv'
+BASE_DIR = 'results/'
+AGGREGATED_CSV_PATH = 'logs/aggregated_results.csv'
 
 def find_metrics_files(base_dir: str) -> pd.DataFrame:
     """

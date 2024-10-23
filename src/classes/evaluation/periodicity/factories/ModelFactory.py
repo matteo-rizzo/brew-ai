@@ -2,6 +2,7 @@ from torch import nn
 
 from src.classes.evaluation.periodicity.models.autopnp.ModelAutoPNPNet import ModelAutoPNPNet
 from src.classes.evaluation.periodicity.models.autopnp.ModelTabAutoPNPNet import ModelTabAutoPNPNet
+from src.classes.evaluation.periodicity.models.baseline.ModelBaseline import ModelBaseline
 from src.classes.evaluation.periodicity.models.chebyshev.ModelChebyshevNet import ModelChebyshevNet
 from src.classes.evaluation.periodicity.models.chebyshev.ModelTabChebyshevNet import ModelTabChebyshevNet
 from src.classes.evaluation.periodicity.models.fourier.ModelFourierNet import ModelFourierNet
@@ -73,7 +74,8 @@ class ModelFactory:
                 num_fourier_features=num_fourier_features,
                 num_chebyshev_terms=num_chebyshev_terms,
                 hidden_size=hidden_size
-            )
+            ),
+            "tabbaseline": ModelBaseline()
         }
 
     def get_model(self, model_name: str) -> nn.Module:

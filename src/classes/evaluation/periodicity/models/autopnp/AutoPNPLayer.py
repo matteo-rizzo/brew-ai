@@ -13,7 +13,7 @@ class AutoPNPLayer(nn.Module):
             num_fourier_features: int,
             num_chebyshev_terms: int,
             feature_selector: str = "default",
-            feature_selection_before_transform: bool = True
+            feature_selection_before_transform: bool = False
     ):
         """
         AutoPNPNet that integrates Fourier and Chebyshev layers with feature selection, embeddings, and an MLP regressor.
@@ -36,26 +36,27 @@ class AutoPNPLayer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 
-        # Estimate periodicity scores using the feature selector
-        periodicity_scores = self.feature_selector(x)
+        # # Estimate periodicity scores using the feature selector
+        # periodicity_scores = self.feature_selector(x)
 
         # Apply feature selection or gating
-        if self.apply_feature_selection_before_transform:
-            x_fourier, x_chebyshev = self.feature_selector.apply_feature_selection(x, periodicity_scores)
-        else:
-            x_fourier, x_chebyshev = x, x
+        # if self.apply_feature_selection_before_transform:
+        #     x_fourier, x_chebyshev = self.feature_selector.apply_feature_selection(x, periodicity_scores)
+        # else:
+        #     x_fourier, x_chebyshev = x, x
+        x_fourier, x_chebyshev = x, x
 
         # Apply Fourier and Chebyshev transformations
         x_fourier = self.fourier_layer(x_fourier)
         x_chebyshev = self.chebyshev_layer(x_chebyshev)
 
-        if not self.apply_feature_selection_before_transform:
-            # Apply gating to transformed features
-            x_fourier, x_chebyshev = self.feature_selector.apply_gating(
-                x_fourier, x_chebyshev, periodicity_scores,
-                self.fourier_layer.num_features_per_input * 2,  # Fourier features per input
-                self.chebyshev_layer.max_terms  # Chebyshev terms
-            )
+        # if not self.apply_feature_selection_before_transform:
+        #     # Apply gating to transformed features
+        #     x_fourier, x_chebyshev = self.feature_selector.apply_gating(
+        #         x_fourier, x_chebyshev, periodicity_scores,
+        #         self.fourier_layer.num_features_per_input * 2,  # Fourier features per input
+        #         self.chebyshev_layer.max_terms  # Chebyshev terms
+        #     )
 
         # Combine Fourier and Chebyshev transformed features
         return torch.cat([x_fourier, x_chebyshev], dim=1)

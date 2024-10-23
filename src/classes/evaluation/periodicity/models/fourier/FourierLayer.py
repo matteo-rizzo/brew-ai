@@ -5,7 +5,7 @@ from torch import nn
 
 class FourierLayer(nn.Module):
     def __init__(self, input_size, num_features_per_input, kernel_size=1, scale=True, init_frequency_range=(0, 3),
-                 activation='sin_cos', use_feature_scaling=True):
+                 use_feature_scaling=True):
         """
         Optimized Learnable Fourier Transform Layer with a convolutional kernel for localized feature extraction.
 
@@ -14,14 +14,12 @@ class FourierLayer(nn.Module):
         :param kernel_size: Size of the kernel for local feature extraction.
         :param scale: Whether to scale the input before applying the Fourier Transform.
         :param init_frequency_range: Range for the initialization of the frequency matrix B.
-        :param activation: Type of activation ('sin_cos', 'sin', 'cos', 'tanh').
         :param use_feature_scaling: Whether to add learnable scaling for the Fourier features.
         """
         super(FourierLayer, self).__init__()
         self.scale = scale
         self.input_size = input_size
         self.num_features_per_input = num_features_per_input
-        self.activation = activation
         self.use_feature_scaling = use_feature_scaling
 
         # Learnable kernel for localized feature extraction (1D convolution)
@@ -58,18 +56,9 @@ class FourierLayer(nn.Module):
         x_proj = 2 * np.pi * x * B  # Shape: [batch_size, input_size, num_features_per_input]
 
         # Apply activation function (sin_cos, sin, cos, or tanh)
-        if self.activation == 'sin_cos':
-            x_sin = torch.sin(x_proj)
-            x_cos = torch.cos(x_proj)
-            x_fourier = torch.cat([x_sin, x_cos], dim=2)  # Concatenate sin and cos
-        elif self.activation == 'sin':
-            x_fourier = torch.sin(x_proj)
-        elif self.activation == 'cos':
-            x_fourier = torch.cos(x_proj)
-        elif self.activation == 'tanh':
-            x_fourier = torch.tanh(x_proj)
-        else:
-            raise ValueError(f"Unsupported activation: {self.activation}")
+        x_sin = torch.sin(x_proj)
+        x_cos = torch.cos(x_proj)
+        x_fourier = torch.cat([x_sin, x_cos], dim=2)  # Concatenate sin and cos
 
         # Flatten the Fourier features
         x_fourier = x_fourier.view(x.size(0), -1)  # Shape: [batch_size, total_fourier_features]

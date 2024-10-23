@@ -1,10 +1,11 @@
+import torch
 from torch import nn
 
 
 class CategoricalMLP(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int = 64, num_layers: int = 2, dropout_prob: float = 0.2):
+    def __init__(self, input_size: int, hidden_size: int = 256, num_layers: int = 3, dropout_prob: float = 0.2):
         """
-        MLP for handling one-hot encoded categorical features.
+        MLP for handling one-hot encoded categorical features with batch normalization.
 
         :param input_size: Size of the input (one-hot encoded features).
         :param hidden_size: Size of hidden layers.
@@ -16,6 +17,7 @@ class CategoricalMLP(nn.Module):
         layers = []
         for _ in range(num_layers):
             layers.append(nn.Linear(input_size, hidden_size))
+            layers.append(nn.BatchNorm1d(hidden_size))  # Add batch normalization
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout_prob))
             input_size = hidden_size
@@ -29,4 +31,8 @@ class CategoricalMLP(nn.Module):
         :param x: Categorical input (one-hot encoded).
         :return: Processed categorical features.
         """
+        # Ensure input is float32
+        if x.dtype != torch.float32:
+            x = x.float()
+
         return self.network(x)

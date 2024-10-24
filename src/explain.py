@@ -31,7 +31,7 @@ def main():
 
         # Data Preprocessing
         logger.info(f"Preprocessing the data with PCA={'enabled' if APPLY_PCA else 'disabled'}...")
-        preprocessor = DataPreprocessor(x, y, apply_pca=APPLY_PCA).preprocess()
+        preprocessor = DataPreprocessor(x, y, apply_pca=APPLY_PCA).make_preprocessor()
 
         # Split data into training and test sets
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST_SIZE, random_state=RANDOM_SEED)

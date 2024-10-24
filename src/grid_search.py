@@ -1,3 +1,4 @@
+import argparse
 import warnings
 
 from sklearn.linear_model._cd_fast import ConvergenceWarning
@@ -5,46 +6,45 @@ from sklearn.linear_model._cd_fast import ConvergenceWarning
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.evaluation.grid_search.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
-from src.functions.utils import make_log_dir, load_data
-from src.config import BASE_LOG_DIR, APPLY_PCA
+from src.config import BASE_LOG_DIR, DATASET_ID
+from src.functions.utils import make_log_dir, load_data, get_dataset_config
 
-# Ignore warnings to keep the output clean
-warnings.filterwarnings('ignore')
+# Suppress convergence warnings and other unnecessary warnings
 warnings.filterwarnings('ignore', category=ConvergenceWarning)
 
-# Initialize the custom logger
+# Initialize the custom logger globally
 logger = Logger()
 
 
-def main():
+def main(dataset_id: str):
+    """Main function to coordinate the data loading, preprocessing, and model evaluation."""
     try:
-        logger.info("Starting the model training and evaluation pipeline...")
+        logger.info("Starting the models training and evaluation GridSearchCV pipeline...")
 
-        # Set the log directory
-        log_dir = make_log_dir(BASE_LOG_DIR, log_type="grid_search")
+        log_dir = make_log_dir(BASE_LOG_DIR, log_type=f"{dataset_id}__grid_search")
+        logger.info(f"Log directory created at: {log_dir}")
 
-        # Load the dataset
-        logger.info("Loading dataset...")
-        x, y = load_data()
+        logger.info(f"Loading dataset with ID: {dataset_id}...")
+        x, y = load_data(dataset_id)
 
-        # Data Preprocessing
-        logger.info(f"Preprocessing the data with PCA={'enabled' if APPLY_PCA else 'disabled'}...")
-        data_preprocessor = DataPreprocessor(x, y, apply_pca=APPLY_PCA)
-        preprocessor = data_preprocessor.preprocess()
+        logger.info("Preprocessing the dataset...")
+        cat_cols = get_dataset_config(dataset_id)["cat_cols"]
+        preprocessor = DataPreprocessor(x, y, cat_cols).make_preprocessor()
 
-        # Model Training and Evaluation
         logger.info("Initializing model training and evaluation...")
         experiment_handler = ExperimentHandler(x, y, preprocessor, log_dir)
         experiment_handler.run_experiment()
-
-        logger.info("Model training and evaluation completed successfully.")
-
+        logger.info("Models training and evaluation GridSearchCV completed successfully.")
     except FileNotFoundError as e:
         logger.error(f"Dataset not found: {e}")
     except Exception as e:
-        logger.error(f"An error occurred during the process: {e}")
+        logger.error(f"An unexpected error occurred during the process. {e}")
         raise
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run model evaluation.")
+    parser.add_argument('--dataset', type=str, default=DATASET_ID,
+                        help="Specify the dataset ID. Defaults to the global DATASET_ID.")
+    args = parser.parse_args()
+    main(args.dataset)

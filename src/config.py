@@ -2,21 +2,24 @@ import numpy as np
 import torch
 
 # Common
-DATASET = 'dataset.csv'
-TARGET = "Tempo di riduzione diacetile"
 BASE_LOG_DIR = "logs"
 RANDOM_SEED = 0
 NUM_FOLDS = 5
-APPLY_PCA = False
 TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DATASET_ID = "superconduct"
 
-# Deep Learning Models
-MODEL_DEEP = "tabnet"  # 'tabnet', 'fttransformer', 'tabtransformer'
-MODEL_PERIODICITY = "tabfnet"
+# Periodicity
+MODEL_PERIODICITY = "tabbaseline"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
+NUM_CHEBYSHEV_TERMS = 3
+NUM_FOURIER_FEATURES = 15
+HIDDEN_SIZE = 256
+
+# Training
 EPOCHS = 5000
 LR = 0.05
 BATCH_SIZE = 512
+PATIENCE = 100
 
 # Grid Search
 CV_METRICS = ['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error', 'neg_root_mean_squared_error']

@@ -1,0 +1,116 @@
+{
+    "beer-fermentation": {
+        "n_num_features": 23,
+        "cat_cols": ["Brand", "Chill-back Start Time", "Durata raffreddamento", "Occupancy in fermentation"],
+        "cat_cards": [2, 2, 2, 2],
+        "target": "Tempo di riduzione diacetile"
+    },
+    "Bike_Sharing_Demand": {
+        "n_num_features": 5,
+        "cat_cols": ["month"],
+        "cat_cards": [2],
+        "target": "count"
+    },
+    "cpu_act": {
+        "n_num_features": 21,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "usr"
+    },
+    "pol": {
+        "n_num_features": 26,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "foo"
+    },
+    "elevators": {
+        "n_num_features": 16,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "Goal"
+    },
+    "wine_quality": {
+        "n_num_features": 11,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "quality"
+    },
+    "Ailerons": {
+        "n_num_features": 33,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "goal"
+    },
+    "yprop_4_1": {
+        "n_num_features": 42,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "oz252"
+    },
+    "houses": {
+        "n_num_features": 8,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "medianhousevalue"
+    },
+    "house_16H": {
+        "n_num_features": 16,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "price"
+    },
+    "delays_zurich_transport": {
+        "n_num_features": 8,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "delay"
+    },
+    "diamonds": {
+        "n_num_features": 6,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "price"
+    },
+    "Brazilian_houses": {
+        "n_num_features": 8,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "totalBRL"
+    },
+    "nyc-taxi-green-dec-2016": {
+        "n_num_features": 9,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "tipamount"
+    },
+    "house_sales": {
+        "n_num_features": 15,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "price"
+    },
+    "sulfur": {
+        "n_num_features": 6,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "y1"
+    },
+    "medical_charges": {
+        "n_num_features": 3,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "AverageTotalPayments"
+    },
+    "MiamiHousing2016": {
+        "n_num_features": 13,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "SALEPRC"
+    },
+    "superconduct": {
+        "n_num_features": 79,
+        "cat_cols": [],
+        "cat_cards": [],
+        "target": "criticaltemp"
+    }
+}

@@ -6,10 +6,10 @@ import torch
 from sklearn.model_selection import KFold
 from torch import nn, optim
 
+from src.classes.data.DataSplitter import DataSplitter
 from src.classes.evaluation.periodicity.Evaluator import Evaluator
-from src.classes.evaluation.periodicity.DataSplitter import DataSplitter
+from src.classes.evaluation.periodicity.ModelFactory import ModelFactory
 from src.classes.evaluation.periodicity.Trainer import Trainer
-from src.classes.evaluation.periodicity.factories.ModelFactory import ModelFactory
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
@@ -19,9 +19,22 @@ logger = Logger()
 
 
 class CrossValidator:
-    def __init__(self, model_name: str, x: pd.DataFrame, y: pd.Series, idx_num: List[int], idx_cat: List[int],
-                 idx_periodic: List[int], idx_non_periodic: List[int], num_folds: int, batch_size: int,
-                 num_epochs: int, learning_rate: float, log_dir: str):
+    def __init__(
+            self,
+            model_name: str,
+            dataset_config: dict,
+            x: pd.DataFrame,
+            y: pd.Series,
+            idx_num: List[int],
+            idx_cat: List[int],
+            idx_periodic: List[int],
+            idx_non_periodic: List[int],
+            num_folds: int,
+            batch_size: int,
+            num_epochs: int,
+            learning_rate: float,
+            log_dir: str
+    ):
         """
         CrossValidator class to handle k-fold cross-validation.
 
@@ -39,6 +52,7 @@ class CrossValidator:
         :param log_dir: Directory for saving logs and metrics.
         """
         self.model_name = model_name
+        self.dataset_config = dataset_config
         self.x = x
         self.y = y
         self.idx_num = idx_num
@@ -106,8 +120,14 @@ class CrossValidator:
         x_train_val, x_test = self.x[train_val_index], self.x[test_index]
         y_train_val, y_test = self.y[train_val_index], self.y[test_index]
 
-        splitter = DataSplitter(x_train_val, y_train_val, self.idx_num, self.idx_cat, self.idx_periodic,
-                            self.idx_non_periodic)
+        splitter = DataSplitter(
+            x_train_val,
+            y_train_val,
+            self.idx_num,
+            self.idx_cat,
+            self.idx_periodic,
+            self.idx_non_periodic
+        )
 
         split_data = splitter.split()
         test_data = {
@@ -130,16 +150,16 @@ class CrossValidator:
         :return: Initialized model as a PyTorch Module.
         """
         logger.info("Initializing model with ModelFactory.")
-        model_start_time = time.time()
 
-        model = ModelFactory(
+        model_factory = ModelFactory(
             num_periodic_input_size=input_sizes['num_periodic_input_size'],
             num_non_periodic_input_size=input_sizes['num_non_periodic_input_size'],
-            cat_input_size=input_sizes['cat_input_size']
-        ).get_model(model_name=self.model_name)
+            cat_input_size=input_sizes['cat_input_size'],
+            dataset_config=self.dataset_config
+        )
+        model = model_factory.get_model(self.model_name)
 
-        model_duration = time.time() - model_start_time
-        logger.info(f"Model initialization completed in {model_duration:.2f} seconds.")
+        logger.info(f"Model initialization completed.")
         return model
 
     def _train_model(self, model: nn.Module, split_data: Dict[str, torch.Tensor]) -> Tuple[
@@ -180,12 +200,10 @@ class CrossValidator:
         :param cv_metrics: List of metrics for each fold.
         """
         logger.info("Computing and logging average metrics across all folds.")
-        avg_metrics_start_time = time.time()
 
         avg_metrics = pd.DataFrame(cv_metrics).mean().to_dict()
         MetricsCalculator.save_metrics_to_json(self.model_name, avg_metrics, self.log_dir)
 
-        avg_metrics_duration = time.time() - avg_metrics_start_time
-        logger.info(f"Average metric calculation completed in {avg_metrics_duration:.2f} seconds.")
+        logger.info(f"Average metric calculation completed.")
         logger.info(f"{self.num_folds}-fold cross-validation completed successfully.")
         logger.info(f"Average Metrics: {avg_metrics}")

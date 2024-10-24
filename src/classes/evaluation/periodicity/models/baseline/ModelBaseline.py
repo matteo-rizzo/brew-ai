@@ -6,10 +6,10 @@ from src.config import DEVICE
 
 class ModelBaseline:
 
-    def __init__(self):
+    def __init__(self, dataset_config: dict):
         self.network = FTTransformer.make_baseline(
-            n_num_features=23,
-            cat_cardinalities=[2, 2, 2, 2],
+            n_num_features=dataset_config['n_num_features'],
+            cat_cardinalities=dataset_config['cat_cards'],
             d_token=8,
             n_blocks=2,
             attention_dropout=0.2,
@@ -26,4 +26,6 @@ class ModelBaseline:
             x_train_cat_tsr: torch.Tensor
     ) -> torch.Tensor:
         x_num_tsr = torch.cat([x_train_num_p_tsr, x_train_num_np_tsr], dim=-1)
+        if not x_train_cat_tsr.numel():
+            x_train_cat_tsr = None
         return self.network(x_num_tsr, x_train_cat_tsr)

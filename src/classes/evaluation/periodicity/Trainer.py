@@ -5,14 +5,14 @@ from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 
 from src.classes.utils.Logger import Logger
-from src.config import DEVICE
+from src.config import DEVICE, PATIENCE
 
 logger = Logger()
 
 
 class Trainer:
     def __init__(self, model: nn.Module, model_name: str, criterion, optimizer, batch_size: int = 32,
-                 num_epochs: int = 5000, early_stopping: bool = True, patience: int = 1000,
+                 num_epochs: int = 5000, early_stopping: bool = True, patience: int = PATIENCE,
                  scheduler_patience: int = 10):
         """
         Trainer class to handle model training and validation.

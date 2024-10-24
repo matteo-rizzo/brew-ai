@@ -2,10 +2,8 @@ import torch
 from torch import nn
 
 from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
-from src.classes.evaluation.periodicity.models.categorical.CategoricalTransformer import CategoricalTransformer
-from src.classes.evaluation.periodicity.models.fourier.FourierLayer import FourierLayer
-from src.classes.evaluation.periodicity.models.regressor.TabMLPRegressor import TabMLPRegressor
-from src.classes.evaluation.periodicity.models.regressor.TransformerRegressor import TransformerRegressor
+from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
+from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
 class TabFourierNet(nn.Module):
@@ -17,27 +15,31 @@ class TabFourierNet(nn.Module):
             hidden_size: int
     ):
         """
-        TabFourierNet that supports both continuous and categorical features.
+        TabFourierNet that supports both continuous and categorical features with a residual connection for the
+        continuous features.
 
         :param continuous_input_size: Number of continuous input features.
         :param categorical_input_size: Number of one-hot encoded categorical features.
         :param num_fourier_features: Number of Fourier features to learn.
-        :param hidden_size: Size of hidden layers.
+        :param hidden_size: Size of hidden layers for the categorical feature processing.
         """
         super().__init__()
 
         # Fourier layer for processing continuous features
-        self.fourier_layer = FourierLayer(continuous_input_size, num_fourier_features)
+        self.fourier_layer = FourierBlock(continuous_input_size, num_fourier_features)
 
         # Categorical MLP for processing one-hot encoded categorical features
         self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size)
 
-        # Update total feature size (continuous + categorical)
-        total_continuous_features = continuous_input_size * num_fourier_features * 2
-        total_features = total_continuous_features + hidden_size  # Hidden size of processed categorical features
+        # Total features for continuous and categorical inputs
+        total_continuous_features = continuous_input_size * num_fourier_features * 2  # Fourier has sine and cosine
+        total_features = total_continuous_features + hidden_size
 
-        # TabMLPRegressor for combined processing
-        self.regressor = TabMLPRegressor(total_features)
+        # Residual layer for stability
+        self.residual_layer = nn.Linear(continuous_input_size, 1)
+
+        # MLPRegressor for the combined continuous and categorical features
+        self.regressor = MLPRegressor(total_features)
 
     def forward(self, x_continuous: torch.Tensor, x_categorical: torch.Tensor) -> torch.Tensor:
         """
@@ -50,11 +52,12 @@ class TabFourierNet(nn.Module):
         # Fourier transform continuous features
         x_fourier = self.fourier_layer(x_continuous)  # Shape: [batch_size, total_fourier_features]
 
-        # Process one-hot encoded categorical features through MLP
+        # Process one-hot encoded categorical features through the MLP
         x_categorical_processed = self.categorical_layer(x_categorical)  # Shape: [batch_size, hidden_size]
 
-        # Combine Fourier and categorical features
-        x_combined = torch.cat([x_fourier, x_categorical_processed], dim=1)  # Shape: [batch_size, total_features]
+        # Combine continuous (Fourier + residual) and categorical features
+        x_combined = torch.cat([x_fourier, x_categorical_processed],
+                               dim=1)  # Shape: [batch_size, total_features]
 
         # Pass through the MLP regressor
         return self.regressor(x_combined)

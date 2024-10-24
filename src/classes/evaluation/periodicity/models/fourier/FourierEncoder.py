@@ -3,7 +3,7 @@ import torch
 from torch import nn
 
 
-class FourierLayer(nn.Module):
+class FourierEncoder(nn.Module):
     def __init__(self, input_size, num_features_per_input, kernel_size=1, scale=True, init_frequency_range=(0, 3),
                  use_feature_scaling=True):
         """
@@ -16,7 +16,7 @@ class FourierLayer(nn.Module):
         :param init_frequency_range: Range for the initialization of the frequency matrix B.
         :param use_feature_scaling: Whether to add learnable scaling for the Fourier features.
         """
-        super(FourierLayer, self).__init__()
+        super(FourierEncoder, self).__init__()
         self.scale = scale
         self.input_size = input_size
         self.num_features_per_input = num_features_per_input

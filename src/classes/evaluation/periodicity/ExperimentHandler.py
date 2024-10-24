@@ -6,14 +6,14 @@ import pandas as pd
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.evaluation.periodicity.CrossValidator import CrossValidator
 from src.classes.utils.Logger import Logger
-from src.config import APPLY_PCA, NUM_FOLDS, EPOCHS, LR, BATCH_SIZE
-from src.functions.utils import detect_periodicity_acf
+from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE
+from src.functions.utils import detect_periodicity_acf, get_dataset_config
 
 logger = Logger()
 
 
 class ExperimentHandler:
-    def __init__(self, model_name: str, x: pd.DataFrame, y: pd.Series, log_dir: str):
+    def __init__(self, model_name: str, dataset_id: str, x: pd.DataFrame, y: pd.Series, log_dir: str):
         """
         ExperimentHandler class to encapsulate the entire experimental workflow.
 
@@ -26,6 +26,24 @@ class ExperimentHandler:
         self.log_dir = log_dir
         self.x = x
         self.y = y
+        logger.info(f"Experiment initialized with model: {model_name}, and dataset: {dataset_id} "
+                    f"Feature matrix shape: {x.shape}, Labels shape: {y.shape}")
+
+        self.dataset_config = get_dataset_config(dataset_id)
+
+        # Precompute numerical and categorical columns for reuse
+        self.cat_cols = self.dataset_config["cat_cols"]
+        self.numerical_columns = [col for col in self.x.columns if col not in self.cat_cols]
+        self.categorical_columns = [col for col in self.x.columns if col in self.cat_cols]
+
+    def reorder_columns(self):
+        """
+        Reorder columns so that numerical columns appear before categorical columns.
+        """
+        ordered_columns = self.numerical_columns + self.categorical_columns
+        logger.info(f"Reordering columns: {len(self.numerical_columns)} numerical, "
+                    f"{len(self.categorical_columns)} categorical")
+        self.x = self.x[ordered_columns]
 
     def identify_periodic_features(self) -> Tuple[List[int], List[int]]:
         """
@@ -33,55 +51,60 @@ class ExperimentHandler:
 
         :return: A tuple with two lists: indices of periodic and non-periodic features.
         """
-        logger.info("Detecting periodic and non-periodic features.")
+        logger.info("Starting detection of periodic and non-periodic numerical features.")
         start_time = time.time()
 
-        x_num = self.x.select_dtypes(include=['float64', 'int64'])
-        idx_periodic = []
-        idx_non_periodic = []
+        x_num_cols = [col for col in self.numerical_columns if col != 'month']
+        idx_periodic, idx_non_periodic = [], []
 
-        for column in x_num.columns:
-            series = x_num[column].values
+        logger.info(f"Analyzing periodicity for {len(x_num_cols)} numerical features.")
+        for column in x_num_cols:
+            series = self.x[column].values
             if detect_periodicity_acf(series):
-                idx_periodic.append(x_num.columns.get_loc(column))
+                logger.debug(f"Feature '{column}' detected as periodic.")
+                idx_periodic.append(self.x.columns.get_loc(column))
             else:
-                idx_non_periodic.append(x_num.columns.get_loc(column))
+                logger.debug(f"Feature '{column}' detected as non-periodic.")
+                idx_non_periodic.append(self.x.columns.get_loc(column))
 
         elapsed_time = time.time() - start_time
-        logger.info(f"Periodicity detection completed in {elapsed_time:.2f} seconds.")
-        logger.info(
-            f"Detected {len(idx_periodic)} periodic features and {len(idx_non_periodic)} non-periodic features.")
+        logger.info(f"Periodicity detection completed in {elapsed_time:.2f} seconds. "
+                    f"Detected {len(idx_periodic)} periodic features and {len(idx_non_periodic)} non-periodic features.")
         return idx_periodic, idx_non_periodic
 
     def prepare_data(self) -> Tuple[List[int], List[int]]:
         """
-        Prepare data by separating numerical and categorical indices.
+        Prepare data by separating numerical and categorical indices after reordering the columns.
 
         :return: A tuple of two lists: indices of numerical features and categorical features.
         """
-        logger.info("Identifying numerical and categorical feature indices.")
-        idx_num = [self.x.columns.get_loc(col) for col in self.x.select_dtypes(include=['float64', 'int64']).columns]
-        idx_cat = [self.x.columns.get_loc(col) for col in self.x.select_dtypes(include=['object', 'category']).columns]
+        start_time = time.time()
 
-        logger.info(f"Identified {len(idx_num)} numerical features and {len(idx_cat)} categorical features.")
+        idx_num = [self.x.columns.get_loc(col) for col in self.numerical_columns]
+        idx_cat = [self.x.columns.get_loc(col) for col in self.categorical_columns]
+
+        elapsed_time = time.time() - start_time
+        logger.info(f"Data preparation completed in {elapsed_time:.2f} seconds. "
+                    f"Identified {len(idx_num)} numerical features and {len(idx_cat)} categorical features.")
         return idx_num, idx_cat
 
     def preprocess_data(self):
         """
         Apply preprocessing to the data, such as scaling and optional PCA.
         """
-        logger.info(f"Starting data preprocessing. PCA applied: {APPLY_PCA}")
+        logger.info("Starting data preprocessing.")
         start_time = time.time()
 
-        data_preprocessor = DataPreprocessor(self.x, self.y, apply_pca=APPLY_PCA)
-        preprocessor = data_preprocessor.preprocess()
+        preprocessor = DataPreprocessor(self.x, self.y, self.cat_cols).make_preprocessor()
+        x_original_shape = self.x.shape
         self.x = preprocessor.fit_transform(self.x)
 
         elapsed_time = time.time() - start_time
-        logger.info(f"Data preprocessing completed in {elapsed_time:.2f} seconds.")
+        logger.info(f"Data preprocessing completed in {elapsed_time:.2f} seconds. "
+                    f"Data shape changed from {x_original_shape} to {self.x.shape}.")
 
-    def run_cross_validation(self, idx_periodic: List[int], idx_non_periodic: List[int], idx_num: List[int],
-                             idx_cat: List[int]):
+    def run_cross_validation(self, idx_periodic: List[int], idx_non_periodic: List[int],
+                             idx_num: List[int], idx_cat: List[int]):
         """
         Set up and run cross-validation on the model.
 
@@ -90,12 +113,12 @@ class ExperimentHandler:
         :param idx_num: Indices of all numerical features.
         :param idx_cat: Indices of categorical features.
         """
-        logger.info(f"Starting cross-validation for model: {self.model_name}")
-        logger.info(
-            f"Cross-validation setup: Folds={NUM_FOLDS}, Batch Size={BATCH_SIZE}, Epochs={EPOCHS}, Learning Rate={LR}")
+        logger.info(f"Starting cross-validation for model: {self.model_name} with configuration: "
+                    f"Folds={NUM_FOLDS}, Batch Size={BATCH_SIZE}, Epochs={EPOCHS}, Learning Rate={LR}")
 
         cross_validator = CrossValidator(
             model_name=self.model_name,
+            dataset_config=self.dataset_config,
             x=self.x,
             y=self.y,
             idx_num=idx_num,
@@ -120,6 +143,9 @@ class ExperimentHandler:
         """
         try:
             logger.info("Starting the evaluation process.")
+
+            # Reorder columns first
+            self.reorder_columns()
 
             # Identify periodic and non-periodic features
             idx_periodic, idx_non_periodic = self.identify_periodic_features()

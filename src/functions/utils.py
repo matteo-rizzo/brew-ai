@@ -8,7 +8,7 @@ from scipy.signal import find_peaks
 from statsmodels.tsa.stattools import acf
 
 from src.classes.utils.Logger import Logger
-from src.config import DATASET, TARGET, BASE_LOG_DIR
+from src.config import BASE_LOG_DIR, DATASET_ID
 
 # Initialize custom logger
 logger = Logger()
@@ -41,25 +41,29 @@ def load_best_params(model_name: str, log_dir: str) -> dict:
         raise
 
 
-def load_data(path_to_data: str = DATASET) -> Tuple[pd.DataFrame, pd.Series]:
+def load_data(dataset_id: str = DATASET_ID) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Load the dataset from the CSV file defined in the settings.
 
     :return: A tuple containing the feature DataFrame (x) and target Series (y)
     """
+
+    path_to_data = os.path.join("dataset", f"{dataset_id}.csv")
+    target = get_dataset_config(dataset_id)["target"]
+
     try:
         logger.info("Loading dataset...")
         df = pd.read_csv(path_to_data, index_col=False)
-        x = df.drop(columns=[TARGET, "Unnamed: 0"], errors='ignore')  # Use 'ignore' to avoid KeyErrors
-        y = df[TARGET]
+        x = df.drop(columns=[target, "Unnamed: 0"], errors='ignore')  # Use 'ignore' to avoid KeyErrors
+        y = df[target]
 
         logger.info("Dataset loaded successfully.")
         return x, y
     except FileNotFoundError as e:
-        logger.error(f"Dataset file not found: {DATASET}. Error: {e}")
+        logger.error(f"Dataset file not found: {path_to_data}. Error: {e}")
         raise
     except Exception as e:
-        logger.error(f"Error loading dataset from {DATASET}: {e}")
+        logger.error(f"Error loading dataset from {path_to_data}: {e}")
         raise
 
 
@@ -91,9 +95,7 @@ def make_model_subdirectory(model_name: str, log_dir: str) -> str:
     :param log_dir: Path to the main log directory
     :return: Path to the created subdirectory for the model
     """
-    model_log_dir = os.path.join(log_dir,
-                                 model_name.replace(' ', '_').lower())  # Use lowercase and underscores for consistency
-
+    model_log_dir = os.path.join(log_dir, model_name.replace(' ', '_').lower())
     try:
         os.makedirs(model_log_dir, exist_ok=True)
         logger.info(f"Created subdirectory for {model_name} at {model_log_dir}")
@@ -107,3 +109,7 @@ def detect_periodicity_acf(series, lag_limit=50):
     autocorr = acf(series, nlags=lag_limit, fft=True)
     peaks, _ = find_peaks(autocorr[1:])  # Exclude lag 0
     return len(peaks) > 0
+
+
+def get_dataset_config(dataset_id: str = DATASET_ID) -> dict:
+    return json.load(open('dataset/config.json', 'r'))[dataset_id]

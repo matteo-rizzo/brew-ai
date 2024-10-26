@@ -4,10 +4,11 @@ from typing import Tuple, List
 import pandas as pd
 
 from src.classes.data.DataPreprocessor import DataPreprocessor
+from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.evaluation.periodicity.CrossValidator import CrossValidator
 from src.classes.utils.Logger import Logger
+from src.classes.utils.PeriodicityDetector import PeriodicityDetector
 from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE
-from src.functions.utils import detect_periodicity_acf, get_dataset_config
 
 logger = Logger()
 
@@ -29,7 +30,7 @@ class ExperimentHandler:
         logger.info(f"Experiment initialized with model: {model_name}, and dataset: {dataset_id} "
                     f"Feature matrix shape: {x.shape}, Labels shape: {y.shape}")
 
-        self.dataset_config = get_dataset_config(dataset_id)
+        self.dataset_config = DatasetLoader().get_dataset_config(dataset_id)
 
         # Precompute numerical and categorical columns for reuse
         self.cat_cols = self.dataset_config["cat_cols"]
@@ -60,7 +61,7 @@ class ExperimentHandler:
         logger.info(f"Analyzing periodicity for {len(x_num_cols)} numerical features.")
         for column in x_num_cols:
             series = self.x[column].values
-            if detect_periodicity_acf(series):
+            if PeriodicityDetector().detect_periodicity_acf(series):
                 logger.debug(f"Feature '{column}' detected as periodic.")
                 idx_periodic.append(self.x.columns.get_loc(column))
             else:

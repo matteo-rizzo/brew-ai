@@ -4,10 +4,11 @@ import warnings
 from sklearn.linear_model._cd_fast import ConvergenceWarning
 
 from src.classes.data.DataPreprocessor import DataPreprocessor
+from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.evaluation.grid_search.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
 from src.config import BASE_LOG_DIR, DATASET_ID
-from src.functions.utils import make_log_dir, load_data, get_dataset_config
+from src.functions.utils import make_log_dir
 
 # Suppress convergence warnings and other unnecessary warnings
 warnings.filterwarnings('ignore', category=ConvergenceWarning)
@@ -25,10 +26,10 @@ def main(dataset_id: str):
         logger.info(f"Log directory created at: {log_dir}")
 
         logger.info(f"Loading dataset with ID: {dataset_id}...")
-        x, y = load_data(dataset_id)
+        x, y = DatasetLoader().load_dataset(dataset_id)
 
         logger.info("Preprocessing the dataset...")
-        cat_cols = get_dataset_config(dataset_id)["cat_cols"]
+        cat_cols = DatasetLoader().get_dataset_config(dataset_id)["cat_cols"]
         preprocessor = DataPreprocessor(x, y, cat_cols).make_preprocessor()
 
         logger.info("Initializing model training and evaluation...")

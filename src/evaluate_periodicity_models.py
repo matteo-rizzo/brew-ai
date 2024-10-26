@@ -1,9 +1,10 @@
 import argparse
 
+from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.evaluation.periodicity.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
-from src.config import MODEL_PERIODICITY, DATASET_ID
-from src.functions.utils import load_data, make_log_dir
+from src.config import MODEL, DATASET_ID
+from src.functions.utils import make_log_dir
 
 logger = Logger()
 
@@ -18,7 +19,7 @@ def main(model_type: str, dataset_id: str):
 
         # Load data
         logger.info("Loading data...")
-        x, y = load_data(dataset_id)
+        x, y = DatasetLoader().load_dataset(dataset_id)
         logger.info(f"Data loaded successfully. Shape: x={x.shape}, y={y.shape}")
 
         # Run the experiment
@@ -31,7 +32,7 @@ def main(model_type: str, dataset_id: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run model evaluation.")
-    parser.add_argument('--model', type=str, default=MODEL_PERIODICITY,
+    parser.add_argument('--model', type=str, default=MODEL,
                         help="Specify the model. Defaults to the global MODEL_PERIODICITY.")
     parser.add_argument('--dataset', type=str, default=DATASET_ID,
                         help="Specify the dataset ID. Defaults to the global DATASET_ID.")

@@ -1,14 +1,9 @@
 import json
 import os
 import time
-from typing import Tuple
-
-import pandas as pd
-from scipy.signal import find_peaks
-from statsmodels.tsa.stattools import acf
 
 from src.classes.utils.Logger import Logger
-from src.config import BASE_LOG_DIR, DATASET_ID
+from src.config import BASE_LOG_DIR, BENCHMARK, SUITE_ID
 
 # Initialize custom logger
 logger = Logger()
@@ -38,32 +33,6 @@ def load_best_params(model_name: str, log_dir: str) -> dict:
         raise
     except Exception as e:
         logger.error(f"Error loading best parameters from {params_file}: {e}")
-        raise
-
-
-def load_data(dataset_id: str = DATASET_ID) -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Load the dataset from the CSV file defined in the settings.
-
-    :return: A tuple containing the feature DataFrame (x) and target Series (y)
-    """
-
-    path_to_data = os.path.join("dataset", f"{dataset_id}.csv")
-    target = get_dataset_config(dataset_id)["target"]
-
-    try:
-        logger.info("Loading dataset...")
-        df = pd.read_csv(path_to_data, index_col=False)
-        x = df.drop(columns=[target, "Unnamed: 0"], errors='ignore')  # Use 'ignore' to avoid KeyErrors
-        y = df[target]
-
-        logger.info("Dataset loaded successfully.")
-        return x, y
-    except FileNotFoundError as e:
-        logger.error(f"Dataset file not found: {path_to_data}. Error: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Error loading dataset from {path_to_data}: {e}")
         raise
 
 
@@ -103,13 +72,3 @@ def make_model_subdirectory(model_name: str, log_dir: str) -> str:
     except OSError as e:
         logger.error(f"Failed to create model subdirectory at {model_log_dir}. Error: {e}")
         raise
-
-
-def detect_periodicity_acf(series, lag_limit=50):
-    autocorr = acf(series, nlags=lag_limit, fft=True)
-    peaks, _ = find_peaks(autocorr[1:])  # Exclude lag 0
-    return len(peaks) > 0
-
-
-def get_dataset_config(dataset_id: str = DATASET_ID) -> dict:
-    return json.load(open('dataset/config.json', 'r'))[dataset_id]

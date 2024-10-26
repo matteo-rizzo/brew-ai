@@ -18,3 +18,4 @@ tab_transformer_pytorch
 gensim==4.3.3
 torchvision==0.19.1
 statsmodels~=0.14.4
+openml~=0.15.0

@@ -1,30 +1,4 @@
 {
-  "beer-fermentation": {
-    "n_num_features": 23,
-    "cat_cols": [
-      "Brand",
-      "Chill-back Start Time",
-      "Durata raffreddamento",
-      "Occupancy in fermentation"
-    ],
-    "cat_cards": [
-      2,
-      2,
-      2,
-      2
-    ],
-    "target": "Tempo di riduzione diacetile"
-  },
-  "Bike_Sharing_Demand": {
-    "n_num_features": 5,
-    "cat_cols": [
-      "month"
-    ],
-    "cat_cards": [
-      2
-    ],
-    "target": "count"
-  },
   "cpu_act": {
     "n_num_features": 21,
     "cat_cols": [],
@@ -55,12 +29,6 @@
     "cat_cards": [],
     "target": "goal"
   },
-  "yprop_4_1": {
-    "n_num_features": 42,
-    "cat_cols": [],
-    "cat_cards": [],
-    "target": "oz252"
-  },
   "houses": {
     "n_num_features": 8,
     "cat_cols": [],
@@ -84,6 +52,12 @@
     "cat_cols": [],
     "cat_cards": [],
     "target": "totalBRL"
+  },
+  "Bike_Sharing_Demand": {
+    "n_num_features": 6,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "count"
   },
   "nyc-taxi-green-dec-2016": {
     "n_num_features": 9,
@@ -120,5 +94,23 @@
     "cat_cols": [],
     "cat_cards": [],
     "target": "criticaltemp"
+  },
+  "yprop_4_1": {
+    "n_num_features": 42,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "oz252"
+  },
+  "abalone": {
+    "n_num_features": 7,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "Classnumberofrings"
+  },
+  "delays_zurich_transport": {
+    "n_num_features": 8,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "delay"
   }
 }

@@ -8,7 +8,7 @@ NUM_FOLDS = 5
 TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DATASET_ID = "superconduct"
-SUITE_ID = 335
+SUITE_ID = 336
 BENCHMARK = True
 
 # Periodicity
@@ -18,9 +18,9 @@ NUM_FOURIER_FEATURES = 15
 HIDDEN_SIZE = 256
 
 # Training
-EPOCHS = 5000
+EPOCHS = 1000
 LR = 0.05
-BATCH_SIZE = 512
+BATCH_SIZE = 1024
 PATIENCE = 100
 
 # Grid Search

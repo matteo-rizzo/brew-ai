@@ -29,7 +29,7 @@ class DatasetLoader:
         """
         suite_config_paths = {
             "335": 'benchmark/cat_reg_config.json',
-            "336": 'benchmark/nug_reg_config.json'
+            "336": 'benchmark/num_reg_config.json'
         }
         return suite_config_paths.get(self.suite_id, 'dataset/config.json') if self.benchmark else 'dataset/config.json'
 

@@ -77,7 +77,6 @@ class ExperimentHandler:
 
                 # Perform cross-validation for the model
                 self._perform_cross_validation(grid_search, model_name, model_log_dir)
-
             except Exception as e:
                 logger.error(f"Error during training of [bold]{model_name}[/bold]: {str(e)}")
 

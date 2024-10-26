@@ -12,10 +12,10 @@ shap~=0.46.0
 dice-ml
 rtdl~=0.0.13
 pytorch_tabnet
-torch==2.4.1
+torch
 scipy~=1.13.1
 tab_transformer_pytorch
 gensim==4.3.3
-torchvision==0.19.1
+torchvision
 statsmodels~=0.14.4
 openml~=0.15.0

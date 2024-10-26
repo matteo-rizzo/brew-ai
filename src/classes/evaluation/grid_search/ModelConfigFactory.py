@@ -29,6 +29,19 @@ class ModelConfigFactory:
         learning_rates = [0.001, 0.01, 0.05, 0.1]
 
         self.models_config: Dict[str, Tuple] = {
+            'mlpregressor': (
+                MLPRegressor(
+                    max_iter=MAX_ITERATIONS,
+                    learning_rate="adaptive",
+                    hidden_layer_sizes=(128, 64),
+                    early_stopping=True,
+                    random_state=RANDOM_SEED,
+                ),
+                {
+                    'model__activation': ['relu', 'tanh', 'logistic'],
+                    'model__solver': ['adam', 'sgd']
+                },
+            ),
             'elasticnet': (
                 ElasticNet(max_iter=MAX_ITERATIONS),
                 {
@@ -80,30 +93,7 @@ class ModelConfigFactory:
                     'model__l2_leaf_reg': [1, 3, 5, 7],
                     'model__bagging_temperature': [0, 1, 3],
                 },
-            ),
-            'mlpregressor': (
-                MLPRegressor(
-                    max_iter=MAX_ITERATIONS,
-                    learning_rate="adaptive",
-                    early_stopping=True,
-                    random_state=RANDOM_SEED,
-                ),
-                {
-                    'model__hidden_layer_sizes': [
-                        (64,),
-                        (128,),
-                        (128, 64),
-                        (128, 64, 32),
-                    ],
-                    'model__activation': ['relu', 'tanh', 'logistic'],
-                    'model__learning_rate_init': [0.0001, 0.001, 0.01],
-                    'model__solver': ['adam', 'sgd'],
-                    'model__alpha': [1e-5, 1e-4, 1e-3],
-                    'model__batch_size': [32, 64, 128],
-                    'model__beta_1': [0.9, 0.95, 0.99],
-                    'model__beta_2': [0.999, 0.99],
-                },
-            ),
+            )
         }
 
     def get_model_configuration(self, model_name: str) -> Tuple:

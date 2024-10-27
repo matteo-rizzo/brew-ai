@@ -181,7 +181,7 @@ class Trainer:
         :return: DataLoader for training.
         """
         dataset = TensorDataset(x_num_p, x_num_np, x_cat, y)
-        return DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
     def get_model(self) -> nn.Module:
         """

@@ -2,7 +2,7 @@ import json
 import subprocess
 
 # Load dataset configurations from JSON
-with open('benchmark/cat_reg_config.json') as f:
+with open('benchmark/num_clf_config.json') as f:
     dataset_configs = json.load(f)
 
 skipped_datasets = [

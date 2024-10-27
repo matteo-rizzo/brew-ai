@@ -26,7 +26,7 @@ HIDDEN_SIZE = 256
 # Training
 EPOCHS = 1000
 LR = 0.01
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 PATIENCE = 100
 
 # Grid Search

@@ -11,8 +11,7 @@ class MLPClassifier(nn.Module):
             num_layers: int = 1,
             dropout_prob: float = 0.2,
             batch_norm: bool = True,
-            activation_fn: nn.Module = nn.ReLU(),
-            output_activation: nn.Module = nn.Softmax(dim=1)
+            activation_fn: nn.Module = nn.ReLU()
     ):
         """
         MLPClassifier: A flexible Multi-Layer Perceptron classifier module.
@@ -46,8 +45,6 @@ class MLPClassifier(nn.Module):
 
         # Output layer with output activation for classification
         layers.append(nn.Linear(current_input_size, output_size))
-        if output_activation is not None:
-            layers.append(output_activation)
 
         # Create the sequential network
         self.network = nn.Sequential(*layers)

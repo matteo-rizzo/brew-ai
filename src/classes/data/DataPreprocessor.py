@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 
 from src.classes.utils.Logger import Logger
 
@@ -19,12 +19,12 @@ class DataPreprocessor:
 
         :param x: Input feature DataFrame
         :param y: Target variable Series
+        :param cat_cols: List of categorical column names in x
         """
         self.x = x
         self.y = y
-
-        self.num_cols = [col for col in self.x.columns if col not in cat_cols]
         self.cat_cols = cat_cols
+        self.num_cols = [col for col in self.x.columns if col not in cat_cols]
 
         logger.info(
             f"DataPreprocessor initialized with {len(self.num_cols)} numerical and {len(self.cat_cols)} categorical columns.")
@@ -56,3 +56,14 @@ class DataPreprocessor:
 
         logger.info("Data preprocessing complete.")
         return preprocessor
+
+    def encode_target(self) -> pd.Series:
+        """
+        Returns the processed target variable, with optional label encoding.
+
+        :return: Processed target variable y
+        """
+        logger.info("Encoding target variable y.")
+        label_encoder = LabelEncoder()
+        y = label_encoder.fit_transform(self.y)
+        return pd.Series(y)

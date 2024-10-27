@@ -5,7 +5,7 @@ from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 
 from src.classes.utils.Logger import Logger
-from src.config import DEVICE, PATIENCE
+from src.config import DEVICE, PATIENCE, CLASSIFICATION
 
 logger = Logger()
 
@@ -112,6 +112,8 @@ class Trainer:
 
             self.optimizer.zero_grad()
             outputs = self._predict(batch_x_p, batch_x_np, batch_x_cat)
+            if CLASSIFICATION:
+                batch_y = batch_y.squeeze().long()
             loss = self.criterion(outputs, batch_y)
             loss.backward()
             self.optimizer.step()
@@ -138,6 +140,8 @@ class Trainer:
                 y_val.to(self.device)
             )
             outputs = self._predict(x_val_num_p, x_val_num_np, x_val_cat)
+            if CLASSIFICATION:
+                y_val = y_val.squeeze().long()
             val_loss = self.criterion(outputs, y_val)
         return val_loss.item()
 

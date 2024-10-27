@@ -7,18 +7,18 @@ RANDOM_SEED = 0
 NUM_FOLDS = 5
 TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-DATASET_ID = "superconduct"
+DATASET_ID = "abalone"
 BENCHMARK = True
 
-SUITE_ID = 335  # Regression on numerical and categorical features
-# SUITE_ID = 336 # Regression on numerical features
+# SUITE_ID = 335 # Regression on numerical and categorical features
+SUITE_ID = 336 # Regression on numerical features
 # SUITE_ID = 334 # Classification on numerical and categorical features
 # SUITE_ID = 337 # Classification on numerical features
 
 CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])
 
 # Periodicity
-MODEL = "tabautopnpnet"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
+MODEL = "tabbaseline"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
 NUM_CHEBYSHEV_TERMS = 3
 NUM_FOURIER_FEATURES = 15
 HIDDEN_SIZE = 256

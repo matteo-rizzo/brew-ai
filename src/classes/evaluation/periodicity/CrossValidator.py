@@ -177,7 +177,7 @@ class CrossValidator:
         logger.info("Starting model training.")
         train_start_time = time.time()
 
-        criterion = nn.MSELoss()
+        criterion = nn.CrossEntropyLoss() if CLASSIFICATION else nn.MSELoss()
         optimizer = optim.AdamW(model.network.parameters(), lr=self.learning_rate)
 
         trainer = Trainer(

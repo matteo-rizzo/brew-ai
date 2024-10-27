@@ -8,7 +8,7 @@ from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.evaluation.periodicity.CrossValidator import CrossValidator
 from src.classes.utils.Logger import Logger
 from src.classes.utils.PeriodicityDetector import PeriodicityDetector
-from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE
+from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE, CLASSIFICATION
 
 logger = Logger()
 
@@ -96,16 +96,23 @@ class ExperimentHandler:
         logger.info("Starting data preprocessing.")
         start_time = time.time()
 
-        preprocessor = DataPreprocessor(self.x, self.y, self.cat_cols).make_preprocessor()
+        preprocessor = DataPreprocessor(self.x, self.y, self.cat_cols)
         x_original_shape = self.x.shape
-        self.x = preprocessor.fit_transform(self.x)
+        self.x = preprocessor.make_preprocessor().fit_transform(self.x)
+        if CLASSIFICATION:
+            self.y = preprocessor.encode_target()
 
         elapsed_time = time.time() - start_time
         logger.info(f"Data preprocessing completed in {elapsed_time:.2f} seconds. "
                     f"Data shape changed from {x_original_shape} to {self.x.shape}.")
 
-    def run_cross_validation(self, idx_periodic: List[int], idx_non_periodic: List[int],
-                             idx_num: List[int], idx_cat: List[int]):
+    def run_cross_validation(
+            self,
+            idx_periodic: List[int],
+            idx_non_periodic: List[int],
+            idx_num: List[int],
+            idx_cat: List[int]
+    ):
         """
         Set up and run cross-validation on the model.
 

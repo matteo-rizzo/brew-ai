@@ -13,7 +13,7 @@ from src.classes.evaluation.periodicity.Trainer import Trainer
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
-from src.config import DEVICE, RANDOM_SEED
+from src.config import DEVICE, RANDOM_SEED, CLASSIFICATION
 
 logger = Logger()
 
@@ -80,10 +80,10 @@ class CrossValidator:
             fold_start_time = time.time()
 
             # Split data
-            split_data, test_data, input_sizes = self._split_data(train_val_index, test_index)
+            split_data, test_data, input_sizes, output_size = self._split_data(train_val_index, test_index)
 
             # Initialize model
-            model = self._initialize_model(input_sizes)
+            model = self._initialize_model(input_sizes, output_size)
 
             # Train model
             trained_model, train_losses, val_losses = self._train_model(model, split_data)
@@ -106,7 +106,7 @@ class CrossValidator:
         self._compute_and_log_avg_metrics(cv_metrics)
 
     def _split_data(self, train_val_index: List[int], test_index: List[int]) -> Tuple[
-        Dict[str, torch.Tensor], Dict[str, torch.Tensor], Dict[str, int]]:
+        Dict[str, torch.Tensor], Dict[str, torch.Tensor], Dict[str, int], int]:
         """
         Split the data into training, validation, and test sets.
 
@@ -137,16 +137,18 @@ class CrossValidator:
             'y': torch.tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(DEVICE)
         }
         input_sizes = split_data['input_sizes']
+        output_size = self.y.nunique() if CLASSIFICATION else 1
 
         split_duration = time.time() - split_start_time
         logger.info(f"Data splitting completed in {split_duration:.2f} seconds.")
-        return split_data, test_data, input_sizes
+        return split_data, test_data, input_sizes, output_size
 
-    def _initialize_model(self, input_sizes: Dict[str, int]) -> nn.Module:
+    def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> nn.Module:
         """
         Initialize the model using ModelFactory.
 
         :param input_sizes: Dictionary containing the input sizes for periodic, non-periodic, and categorical data.
+        :param input_sizes: Output size, 1 for regression, > 1 for classification.
         :return: Initialized model as a PyTorch Module.
         """
         logger.info("Initializing model with ModelFactory.")
@@ -155,6 +157,7 @@ class CrossValidator:
             num_periodic_input_size=input_sizes['num_periodic_input_size'],
             num_non_periodic_input_size=input_sizes['num_non_periodic_input_size'],
             cat_input_size=input_sizes['cat_input_size'],
+            output_size=output_size,
             dataset_config=self.dataset_config
         )
         model = model_factory.get_model(self.model_name)

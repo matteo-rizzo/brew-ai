@@ -3,9 +3,17 @@ from torch import nn
 
 
 class MLPClassifier(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int = 32, output_size: int = 1, num_layers: int = 1,
-                 dropout_prob: float = 0.2, batch_norm: bool = True, activation_fn: nn.Module = nn.ReLU(),
-                 output_activation: nn.Module = nn.Softmax(dim=1)):
+    def __init__(
+            self,
+            input_size: int,
+            hidden_size: int = 32,
+            output_size: int = 1,
+            num_layers: int = 1,
+            dropout_prob: float = 0.2,
+            batch_norm: bool = True,
+            activation_fn: nn.Module = nn.ReLU(),
+            output_activation: nn.Module = nn.Softmax(dim=1)
+    ):
         """
         MLPClassifier: A flexible Multi-Layer Perceptron classifier module.
 

@@ -3,6 +3,7 @@ from torch import nn
 
 from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevBlock import ChebyshevBlock
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
@@ -15,7 +16,8 @@ class TabPNPNet(nn.Module):
             categorical_input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
-            hidden_size: int
+            hidden_size: int,
+            output_size: int = 1
     ):
         """
         TabPNPNet extends PNPNet to support both continuous (periodic and non-periodic) and one-hot encoded categorical features,
@@ -27,17 +29,21 @@ class TabPNPNet(nn.Module):
         :param num_fourier_features: Number of Fourier features per periodic input feature.
         :param num_chebyshev_terms: Number of Chebyshev polynomial terms.
         :param hidden_size: Number of neurons in hidden layers.
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super(TabPNPNet, self).__init__()
 
         # Initialize Fourier layer if periodic_input_size > 0
-        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features) if periodic_input_size > 0 else None
+        self.fourier_layer = FourierBlock(periodic_input_size,
+                                          num_fourier_features) if periodic_input_size > 0 else None
 
         # Initialize Chebyshev layer if non_periodic_input_size > 0
-        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms) if non_periodic_input_size > 0 else None
+        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size,
+                                              num_chebyshev_terms) if non_periodic_input_size > 0 else None
 
         # Initialize categorical layer if categorical_input_size > 0
-        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size) if categorical_input_size > 0 else None
+        self.categorical_layer = CategoricalMLP(categorical_input_size,
+                                                hidden_size) if categorical_input_size > 0 else None
 
         # Compute the total feature sizes based on the presence of each layer
         total_fourier_features = periodic_input_size * num_fourier_features * 2 if self.fourier_layer else 0
@@ -45,8 +51,11 @@ class TabPNPNet(nn.Module):
         total_categorical_features = hidden_size if self.categorical_layer else 0
         total_features = total_fourier_features + total_chebyshev_features + total_categorical_features
 
-        # MLPRegressor for combined processing
-        self.regressor = MLPRegressor(total_features)
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
     def forward(self, x_periodic=None, x_non_periodic=None, x_categorical=None):
         """
@@ -76,7 +85,9 @@ class TabPNPNet(nn.Module):
             transformed_features.append(x_categorical_processed)
 
         # Concatenate all non-empty transformed features
-        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0, device=x_periodic.device if x_periodic is not None else (x_non_periodic.device if x_non_periodic is not None else x_categorical.device))
+        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0,
+                                                                                                      device=x_periodic.device if x_periodic is not None else (
+                                                                                                          x_non_periodic.device if x_non_periodic is not None else x_categorical.device))
 
         # Pass the combined features through the regressor
-        return self.regressor(x_combined)
+        return self.mlp(x_combined)

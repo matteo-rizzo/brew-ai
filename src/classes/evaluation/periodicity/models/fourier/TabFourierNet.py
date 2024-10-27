@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
@@ -12,7 +13,8 @@ class TabFourierNet(nn.Module):
             continuous_input_size: int,
             categorical_input_size: int,
             num_fourier_features: int,
-            hidden_size: int
+            hidden_size: int,
+            output_size: int = 1
     ):
         """
         TabFourierNet that supports both continuous and categorical features with a residual connection for the
@@ -22,6 +24,7 @@ class TabFourierNet(nn.Module):
         :param categorical_input_size: Number of one-hot encoded categorical features.
         :param num_fourier_features: Number of Fourier features to learn.
         :param hidden_size: Size of hidden layers for the categorical feature processing.
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super().__init__()
 
@@ -38,8 +41,11 @@ class TabFourierNet(nn.Module):
         # Residual layer for stability
         self.residual_layer = nn.Linear(continuous_input_size, 1)
 
-        # MLPRegressor for the combined continuous and categorical features
-        self.regressor = MLPRegressor(total_features)
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
     def forward(self, x_continuous: torch.Tensor, x_categorical: torch.Tensor) -> torch.Tensor:
         """
@@ -60,4 +66,4 @@ class TabFourierNet(nn.Module):
                                dim=1)  # Shape: [batch_size, total_features]
 
         # Pass through the MLP regressor
-        return self.regressor(x_combined)
+        return self.mlp(x_combined)

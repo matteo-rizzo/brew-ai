@@ -3,8 +3,16 @@ from torch import nn
 
 
 class MLPRegressor(nn.Module):
-    def __init__(self, input_size: int, hidden_size: int = 32, output_size: int = 1, num_layers: int = 1,
-                 dropout_prob: float = 0.2, batch_norm: bool = True, activation_fn: nn.Module = nn.ReLU()):
+    def __init__(
+            self,
+            input_size: int,
+            hidden_size: int = 32,
+            output_size: int = 1,
+            num_layers: int = 1,
+            dropout_prob: float = 0.2,
+            batch_norm: bool = True,
+            activation_fn: nn.Module = nn.ReLU()
+    ):
         """
         MLPRegressor: A flexible Multi-Layer Perceptron regressor module.
 

@@ -6,7 +6,7 @@ from src.config import DEVICE
 
 class ModelBaseline:
 
-    def __init__(self, dataset_config: dict):
+    def __init__(self, dataset_config: dict, output_size: int = 1):
         self.network = FTTransformer.make_baseline(
             n_num_features=dataset_config['n_num_features'],
             cat_cardinalities=dataset_config['cat_cards'],
@@ -16,7 +16,7 @@ class ModelBaseline:
             ffn_d_hidden=6,
             ffn_dropout=0.2,
             residual_dropout=0.0,
-            d_out=1,
+            d_out=output_size,
         ).to(DEVICE)
 
     def predict(

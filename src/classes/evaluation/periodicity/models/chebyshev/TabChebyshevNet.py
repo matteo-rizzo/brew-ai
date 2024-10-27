@@ -3,6 +3,7 @@ from torch import Tensor, nn
 
 from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevBlock import ChebyshevBlock
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
@@ -12,7 +13,8 @@ class TabChebyshevNet(nn.Module):
             continuous_input_size: int,
             categorical_input_size: int,
             num_chebyshev_terms: int,
-            hidden_size: int
+            hidden_size: int,
+            output_size: int = 1
     ):
         """
         TabChebyshevNet that accepts one-hot encoded categorical features and applies a residual connection.
@@ -21,6 +23,7 @@ class TabChebyshevNet(nn.Module):
         :param categorical_input_size: Total number of one-hot encoded categorical features.
         :param num_chebyshev_terms: Number of Chebyshev polynomial terms.
         :param hidden_size: Size of hidden layers.
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super().__init__()
 
@@ -34,8 +37,11 @@ class TabChebyshevNet(nn.Module):
         total_continuous_features = continuous_input_size * num_chebyshev_terms
         total_features = total_continuous_features + hidden_size  # Hidden size of processed categorical features
 
-        # MLPRegressor for combined processing
-        self.regressor = MLPRegressor(total_features)
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
     def forward(self, x_continuous: Tensor, x_categorical: Tensor) -> Tensor:
         """
@@ -55,4 +61,4 @@ class TabChebyshevNet(nn.Module):
         x_combined = torch.cat([x_chebyshev, x_categorical_processed], dim=1)
 
         # Pass combined features through the MLPRegressor
-        return self.regressor(x_combined)
+        return self.mlp(x_combined)

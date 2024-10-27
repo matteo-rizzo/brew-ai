@@ -11,13 +11,15 @@ class ModelTabChebyshevNet:
             continuous_input_size: int,
             categorical_input_size: int,
             num_chebyshev_terms: int = 5,
-            hidden_size: int = 64
+            hidden_size: int = 64,
+            output_size: int = 1
     ):
         self.network = TabChebyshevNet(
             continuous_input_size=continuous_input_size,
             categorical_input_size=categorical_input_size,
             num_chebyshev_terms=num_chebyshev_terms,
-            hidden_size=hidden_size
+            hidden_size=hidden_size,
+            output_size=output_size
         ).to(DEVICE)
 
     def predict(

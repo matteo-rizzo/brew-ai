@@ -12,14 +12,16 @@ class ModelTabAutoPNPNet:
             categorical_input_size: int,
             num_fourier_features: int = 16,
             num_chebyshev_terms: int = 5,
-            hidden_size: int = 64
+            hidden_size: int = 64,
+            output_size: int = 1
     ):
         self.network = TabAutoPNPNet(
             continuous_input_size=continuous_input_size,
             categorical_input_size=categorical_input_size,
             num_fourier_features=num_fourier_features,
             num_chebyshev_terms=num_chebyshev_terms,
-            hidden_size=hidden_size
+            hidden_size=hidden_size,
+            output_size=output_size
         ).to(DEVICE)
 
     def predict(

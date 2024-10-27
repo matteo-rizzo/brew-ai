@@ -11,13 +11,15 @@ class ModelTabFourierNet:
             continuous_input_size: int,
             categorical_input_size: int,
             num_fourier_features: int = 16,
-            hidden_size: int = 64
+            hidden_size: int = 64,
+            output_size: int = 1
     ):
         self.network = TabFourierNet(
             continuous_input_size=continuous_input_size,
             categorical_input_size=categorical_input_size,
             num_fourier_features=num_fourier_features,
-            hidden_size=hidden_size
+            hidden_size=hidden_size,
+            output_size=output_size
         ).to(DEVICE)
 
     def predict(

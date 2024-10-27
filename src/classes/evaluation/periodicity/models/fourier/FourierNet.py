@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
@@ -12,7 +13,8 @@ class FourierNet(nn.Module):
             num_fourier_features: int,
             num_layers: int = 1,
             compression_dim: int = 128,
-            dropout_prob: float = 0.2
+            dropout_prob: float = 0.2,
+            output_size: int = 1
     ):
         """
         FourierNet integrates Fourier transformations with an MLP regressor and adds a residual connection.
@@ -22,6 +24,7 @@ class FourierNet(nn.Module):
         :param num_layers: Number of FourierBlock layers to stack.
         :param compression_dim: Dimension to compress features to between layers.
         :param dropout_prob: Probability of dropout after normalization layers (0 to 1).
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super(FourierNet, self).__init__()
 
@@ -34,8 +37,13 @@ class FourierNet(nn.Module):
             dropout_prob=dropout_prob
         )
 
-        # MLPRegressor for handling the fully connected layers
-        self.regressor = MLPRegressor(self.fourier_block.output_dim)
+        total_features = self.fourier_block.output_dim
+
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -48,6 +56,6 @@ class FourierNet(nn.Module):
         x_fourier = self.fourier_block(x)
 
         # Pass through the MLP regressor
-        out = self.regressor(x_fourier)
+        out = self.mlp(x_fourier)
 
         return out

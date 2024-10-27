@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevBlock import ChebyshevBlock
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
@@ -12,7 +13,8 @@ class PNPNet(nn.Module):
             periodic_input_size: int,
             non_periodic_input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int
+            num_chebyshev_terms: int,
+            output_size: int = 1
     ):
         """
         A combined neural network that integrates Fourier and Chebyshev layers with an MLP regressor.
@@ -22,22 +24,28 @@ class PNPNet(nn.Module):
         :param non_periodic_input_size: Size of non-periodic input features.
         :param num_fourier_features: Number of Fourier features to learn.
         :param num_chebyshev_terms: Number of Chebyshev terms.
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super(PNPNet, self).__init__()
 
         # Fourier layer for periodic features (if applicable)
-        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features) if periodic_input_size > 0 else None
+        self.fourier_layer = FourierBlock(periodic_input_size,
+                                          num_fourier_features) if periodic_input_size > 0 else None
 
         # Chebyshev layer for non-periodic features (if applicable)
-        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms) if non_periodic_input_size > 0 else None
+        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size,
+                                              num_chebyshev_terms) if non_periodic_input_size > 0 else None
 
         # Calculate total features dynamically based on the presence of Fourier and Chebyshev layers
         total_fourier_features = periodic_input_size * num_fourier_features * 2 if self.fourier_layer else 0
         total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms if self.chebyshev_layer else 0
         total_features = total_fourier_features + total_chebyshev_features
 
-        # MLPRegressor for handling the fully connected layers
-        self.regressor = MLPRegressor(total_features)
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
     def forward(self, x_periodic: torch.Tensor = None, x_non_periodic: torch.Tensor = None) -> torch.Tensor:
         """
@@ -61,9 +69,10 @@ class PNPNet(nn.Module):
             transformed_features.append(x_chebyshev)
 
         # Concatenate all non-empty transformed features
-        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0, device=x_periodic.device if x_periodic is not None else x_non_periodic.device)
+        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0,
+                                                                                                      device=x_periodic.device if x_periodic is not None else x_non_periodic.device)
 
         # Pass through the MLP regressor
-        out = self.regressor(x_combined)
+        out = self.mlp(x_combined)
 
         return out

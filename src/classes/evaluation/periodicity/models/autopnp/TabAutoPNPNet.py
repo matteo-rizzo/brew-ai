@@ -3,6 +3,7 @@ from torch import nn
 
 from src.classes.evaluation.periodicity.models.autopnp.AutoPNPBlock import AutoPNPBlock
 from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
+from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
 from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
@@ -13,7 +14,8 @@ class TabAutoPNPNet(nn.Module):
             categorical_input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
-            hidden_size: int
+            hidden_size: int,
+            output_size: int = 1
     ):
         """
         TabAutoPNPNet: Extends AutoPNPNet to support both continuous and one-hot encoded categorical features.
@@ -23,6 +25,7 @@ class TabAutoPNPNet(nn.Module):
         :param num_fourier_features: Number of Fourier features per continuous input feature.
         :param num_chebyshev_terms: Number of Chebyshev polynomial terms.
         :param hidden_size: Size of hidden layers for categorical features processing.
+        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
         """
         super(TabAutoPNPNet, self).__init__()
 
@@ -44,10 +47,13 @@ class TabAutoPNPNet(nn.Module):
         total_chebyshev_features = num_chebyshev_terms * continuous_input_size
 
         # Total features after combining continuous and processed categorical features
-        total_combined_features = total_fourier_features + total_chebyshev_features + hidden_size
+        total_features = total_fourier_features + total_chebyshev_features + hidden_size
 
-        # Regressor for combined features
-        self.regressor = MLPRegressor(total_combined_features)
+        # Choose between MLPClassifier and MLPRegressor based on output_size
+        if output_size > 1:
+            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
+        else:
+            self.mlp = MLPRegressor(input_size=total_features)
 
         # Residual layer for continuous features (without categorical)
         self.residual_layer = nn.Linear(total_fourier_features + total_chebyshev_features, 1)
@@ -73,7 +79,7 @@ class TabAutoPNPNet(nn.Module):
         x_combined = torch.cat([x_continuous_combined, x_categorical_processed], dim=1)
 
         # Pass combined features through the regressor MLP
-        out = self.regressor(x_combined)
+        out = self.mlp(x_combined)
 
         # Add the residual (continuous features only)
         out += residual

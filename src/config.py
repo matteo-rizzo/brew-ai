@@ -12,15 +12,15 @@ SUITE_ID = 336
 BENCHMARK = True
 
 # Periodicity
-MODEL = "tabbaseline"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
+MODEL = "tabautopnpnet"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
 NUM_CHEBYSHEV_TERMS = 3
 NUM_FOURIER_FEATURES = 15
 HIDDEN_SIZE = 256
 
 # Training
 EPOCHS = 1000
-LR = 0.05
-BATCH_SIZE = 1024
+LR = 0.01
+BATCH_SIZE = 128
 PATIENCE = 100
 
 # Grid Search

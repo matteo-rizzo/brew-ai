@@ -25,21 +25,21 @@ class PNPNet(nn.Module):
         """
         super(PNPNet, self).__init__()
 
-        # Fourier layer for periodic features
-        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features)
+        # Fourier layer for periodic features (if applicable)
+        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features) if periodic_input_size > 0 else None
 
-        # Chebyshev layer for non-periodic features
-        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms)
+        # Chebyshev layer for non-periodic features (if applicable)
+        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms) if non_periodic_input_size > 0 else None
 
-        # Total feature sizes
-        total_fourier_features = periodic_input_size * num_fourier_features * 2  # Fourier has sine and cosine
-        total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms
+        # Calculate total features dynamically based on the presence of Fourier and Chebyshev layers
+        total_fourier_features = periodic_input_size * num_fourier_features * 2 if self.fourier_layer else 0
+        total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms if self.chebyshev_layer else 0
         total_features = total_fourier_features + total_chebyshev_features
 
         # MLPRegressor for handling the fully connected layers
         self.regressor = MLPRegressor(total_features)
 
-    def forward(self, x_periodic: torch.Tensor, x_non_periodic: torch.Tensor) -> torch.Tensor:
+    def forward(self, x_periodic: torch.Tensor = None, x_non_periodic: torch.Tensor = None) -> torch.Tensor:
         """
         Forward pass of PNPNet with residual connections.
 
@@ -47,14 +47,21 @@ class PNPNet(nn.Module):
         :param x_non_periodic: Tensor of non-periodic features, shape [batch_size, non_periodic_input_size].
         :return: Output tensor of shape [batch_size, 1].
         """
-        # Apply Fourier transformation to periodic features
-        x_fourier = self.fourier_layer(x_periodic)  # Shape: [batch_size, total_fourier_features]
+        # Initialize an empty list to collect transformed features
+        transformed_features = []
 
-        # Apply Chebyshev transformation to non-periodic features
-        x_chebyshev = self.chebyshev_layer(x_non_periodic)  # Shape: [batch_size, total_chebyshev_features]
+        # Apply Fourier transformation if periodic features are provided
+        if self.fourier_layer and x_periodic is not None:
+            x_fourier = self.fourier_layer(x_periodic)
+            transformed_features.append(x_fourier)
 
-        # Concatenate Fourier and Chebyshev outputs
-        x_combined = torch.cat([x_fourier, x_chebyshev], dim=-1)  # Shape: [batch_size, total_features]
+        # Apply Chebyshev transformation if non-periodic features are provided
+        if self.chebyshev_layer and x_non_periodic is not None:
+            x_chebyshev = self.chebyshev_layer(x_non_periodic)
+            transformed_features.append(x_chebyshev)
+
+        # Concatenate all non-empty transformed features
+        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0, device=x_periodic.device if x_periodic is not None else x_non_periodic.device)
 
         # Pass through the MLP regressor
         out = self.regressor(x_combined)

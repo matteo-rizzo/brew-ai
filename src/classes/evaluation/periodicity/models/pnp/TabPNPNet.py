@@ -30,25 +30,25 @@ class TabPNPNet(nn.Module):
         """
         super(TabPNPNet, self).__init__()
 
-        # Fourier and Chebyshev layers for periodic and non-periodic features
-        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features)
-        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms)
+        # Initialize Fourier layer if periodic_input_size > 0
+        self.fourier_layer = FourierBlock(periodic_input_size, num_fourier_features) if periodic_input_size > 0 else None
 
-        # Residual connections for periodic and non-periodic features
-        total_fourier_features = periodic_input_size * num_fourier_features * 2  # Times 2 for sin and cos
-        total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms
+        # Initialize Chebyshev layer if non_periodic_input_size > 0
+        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size, num_chebyshev_terms) if non_periodic_input_size > 0 else None
 
-        # Categorical MLP for processing one-hot encoded categorical features
-        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size)
+        # Initialize categorical layer if categorical_input_size > 0
+        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size) if categorical_input_size > 0 else None
 
-        # Total features after combining Fourier, Chebyshev, and categorical features
-        total_categorical_features = hidden_size
+        # Compute the total feature sizes based on the presence of each layer
+        total_fourier_features = periodic_input_size * num_fourier_features * 2 if self.fourier_layer else 0
+        total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms if self.chebyshev_layer else 0
+        total_categorical_features = hidden_size if self.categorical_layer else 0
         total_features = total_fourier_features + total_chebyshev_features + total_categorical_features
 
         # MLPRegressor for combined processing
         self.regressor = MLPRegressor(total_features)
 
-    def forward(self, x_periodic, x_non_periodic, x_categorical):
+    def forward(self, x_periodic=None, x_non_periodic=None, x_categorical=None):
         """
         Forward pass of the TabPNPNet with residual connections.
 
@@ -57,17 +57,26 @@ class TabPNPNet(nn.Module):
         :param x_categorical: Tensor of one-hot encoded categorical features, shape [batch_size, categorical_input_size].
         :return: Output tensor after passing through the network.
         """
-        # Apply Fourier transformation to periodic features
-        x_fourier = self.fourier_layer(x_periodic)
+        # Initialize a list to collect transformed features
+        transformed_features = []
 
-        # Apply Chebyshev transformation to non-periodic features
-        x_chebyshev = self.chebyshev_layer(x_non_periodic)
+        # Apply Fourier transformation if x_periodic is provided
+        if self.fourier_layer and x_periodic is not None:
+            x_fourier = self.fourier_layer(x_periodic)
+            transformed_features.append(x_fourier)
 
-        # Process one-hot encoded categorical features through MLP
-        x_categorical_processed = self.categorical_layer(x_categorical)
+        # Apply Chebyshev transformation if x_non_periodic is provided
+        if self.chebyshev_layer and x_non_periodic is not None:
+            x_chebyshev = self.chebyshev_layer(x_non_periodic)
+            transformed_features.append(x_chebyshev)
 
-        # Concatenate Fourier, Chebyshev, and categorical outputs
-        x_combined = torch.cat([x_fourier, x_chebyshev, x_categorical_processed], dim=-1)
+        # Process categorical features through the MLP if x_categorical is provided
+        if self.categorical_layer and x_categorical is not None:
+            x_categorical_processed = self.categorical_layer(x_categorical)
+            transformed_features.append(x_categorical_processed)
+
+        # Concatenate all non-empty transformed features
+        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0, device=x_periodic.device if x_periodic is not None else (x_non_periodic.device if x_non_periodic is not None else x_categorical.device))
 
         # Pass the combined features through the regressor
         return self.regressor(x_combined)

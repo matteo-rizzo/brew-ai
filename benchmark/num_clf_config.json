@@ -1,0 +1,98 @@
+{
+  "credit": {
+    "n_num_features": 10,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "SeriousDlqin2yrs"
+  },
+  "electricity": {
+    "n_num_features": 7,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "class"
+  },
+  "covertype": {
+    "n_num_features": 10,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "Y"
+  },
+  "pol": {
+    "n_num_features": 26,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "binaryClass"
+  },
+  "house_16H": {
+    "n_num_features": 16,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "binaryClass"
+  },
+  "MagicTelescope": {
+    "n_num_features": 10,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "class"
+  },
+  "bank-marketing": {
+    "n_num_features": 7,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "Class"
+  },
+  "MiniBooNE": {
+    "n_num_features": 50,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "signal"
+  },
+  "Higgs": {
+    "n_num_features": 24,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "target"
+  },
+  "eye_movements": {
+    "n_num_features": 20,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "label"
+  },
+  "Diabetes130US": {
+    "n_num_features": 7,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "readmitted"
+  },
+  "jannis": {
+    "n_num_features": 54,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "class"
+  },
+  "default-of-credit-card-clients": {
+    "n_num_features": 20,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "y"
+  },
+  "Bioresponse": {
+    "n_num_features": 419,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "target"
+  },
+  "california": {
+    "n_num_features": 8,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "price_above_median"
+  },
+  "heloc": {
+    "n_num_features": 22,
+    "cat_cols": [],
+    "cat_cards": [],
+    "target": "RiskPerformance"
+  }
+}

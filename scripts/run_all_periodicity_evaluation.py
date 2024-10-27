@@ -2,14 +2,18 @@ import json
 import subprocess
 
 # Load dataset configurations from JSON
-with open('benchmark/num_reg_config.json') as f:
+with open('benchmark/cat_reg_config.json') as f:
     dataset_configs = json.load(f)
 
 skipped_datasets = [
     "nyc-taxi-green-dec-2016",
     "delays_zurich_transport",
     "Allstate_Claims_Severity",
-    "Airlines_DepDelay_1M"
+    "Airlines_DepDelay_1M",
+    "topo_2_1",
+    "seattlecrime6",
+    "particulate-matter-ukair-2017",
+    "Mercedes_Benz_Greener_Manufacturing"
 ]
 
 # List of model types to iterate over

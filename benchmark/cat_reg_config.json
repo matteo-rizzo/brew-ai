@@ -782,7 +782,7 @@
     "target": "total_(BRL)"
   },
   "Bike_Sharing_Demand": {
-    "n_num_features": 6,
+    "n_num_features": 5,
     "cat_cols": [
       "season",
       "year",

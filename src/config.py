@@ -11,9 +11,9 @@ DATASET_ID = "abalone"
 BENCHMARK = True
 
 # SUITE_ID = 335 # Regression on numerical and categorical features
-SUITE_ID = 336 # Regression on numerical features
+# SUITE_ID = 336 # Regression on numerical features
 # SUITE_ID = 334 # Classification on numerical and categorical features
-# SUITE_ID = 337 # Classification on numerical features
+SUITE_ID = 337 # Classification on numerical features
 
 CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])
 

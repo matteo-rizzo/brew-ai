@@ -13,11 +13,16 @@ skipped_datasets = [
     "topo_2_1",
     "seattlecrime6",
     "particulate-matter-ukair-2017",
-    "Mercedes_Benz_Greener_Manufacturing"
+    "Mercedes_Benz_Greener_Manufacturing",
+    "Higgs",
+    "MiniBooNE",
+    "covertype",
+    "jannis",
+    "road-safety"
 ]
 
 # List of model types to iterate over
-model_types = ["pnpnet", "tabpnpnet"]
+model_types = ["tabbaseline", "fnet", "cnet", "pnpnet", "autopnpnet"]
 
 # Iterate over dataset IDs and model types
 for dataset_id in dataset_configs.keys():

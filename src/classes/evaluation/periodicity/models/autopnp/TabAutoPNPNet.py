@@ -44,7 +44,7 @@ class TabAutoPNPNet(nn.Module):
 
         # Feature dimensions after the Fourier and Chebyshev transformations
         total_fourier_features = num_fourier_features * 2 * continuous_input_size  # Fourier has sine and cosine
-        total_chebyshev_features = num_chebyshev_terms * continuous_input_size
+        total_chebyshev_features = num_chebyshev_terms * continuous_input_size * 4
 
         # Total features after combining continuous and processed categorical features
         total_features = total_fourier_features + total_chebyshev_features + hidden_size

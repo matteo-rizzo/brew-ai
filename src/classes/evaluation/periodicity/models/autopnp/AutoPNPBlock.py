@@ -41,7 +41,7 @@ class AutoPNPBlock(nn.Module):
 
             # Calculate output feature dimension from AutoPNPEncoder
             total_fourier_features = num_fourier_features * 2 * current_input_size  # Fourier has sine and cosine
-            total_chebyshev_features = num_chebyshev_terms * current_input_size
+            total_chebyshev_features = num_chebyshev_terms * current_input_size * 4
             total_features = total_fourier_features + total_chebyshev_features
 
             # Add compression layer to reduce back to input_size (except after the last layer)

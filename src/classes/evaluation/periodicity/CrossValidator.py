@@ -7,6 +7,7 @@ from sklearn.model_selection import KFold
 from torch import nn, optim
 
 from src.classes.data.DataSplitter import DataSplitter
+from src.classes.evaluation.loss.PNPLoss import PNPMSELoss
 from src.classes.evaluation.periodicity.Evaluator import Evaluator
 from src.classes.evaluation.periodicity.ModelFactory import ModelFactory
 from src.classes.evaluation.periodicity.Trainer import Trainer
@@ -177,7 +178,7 @@ class CrossValidator:
         logger.info("Starting model training.")
         train_start_time = time.time()
 
-        criterion = nn.CrossEntropyLoss() if CLASSIFICATION else nn.MSELoss()
+        criterion = nn.CrossEntropyLoss() if CLASSIFICATION else PNPMSELoss()
         optimizer = optim.AdamW(model.network.parameters(), lr=self.learning_rate)
 
         trainer = Trainer(

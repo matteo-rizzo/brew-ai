@@ -11,7 +11,7 @@ class ChebyshevBlock(nn.Module):
             num_chebyshev_terms: int,
             num_layers: int = 1,
             compression_dim: int = None,
-            dropout_prob: float = 0.5
+            dropout_prob: float = 0.2
     ):
         """
         ChebyshevBlock that stacks multiple ChebyshevEncoder layers with optional compression, batch normalization,
@@ -38,7 +38,7 @@ class ChebyshevBlock(nn.Module):
             self.layers.append(ChebyshevEncoder(current_input_size, num_chebyshev_terms))
 
             # Compute output feature dimension from the Chebyshev layer
-            total_features = num_chebyshev_terms * current_input_size
+            total_features = num_chebyshev_terms * current_input_size * 4
 
             if i < num_layers - 1:
                 # Add compression layer (reduce back to compression_dim or input_size)

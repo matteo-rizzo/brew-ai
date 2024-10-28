@@ -38,7 +38,7 @@ class FourierBlock(nn.Module):
             self.layers.append(FourierEncoder(current_input_size, num_fourier_features))
 
             # Calculate output feature dimension from FourierEncoder
-            total_features = num_fourier_features * 2 * current_input_size  # sine and cosine outputs
+            total_features = num_fourier_features * 2 * current_input_size # sine and cosine outputs
 
             # Add compression layer to reduce back to input_size (except after the last layer)
             if i < num_layers - 1:

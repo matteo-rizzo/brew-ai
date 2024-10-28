@@ -4,8 +4,15 @@ from torch import nn
 
 
 class FourierEncoder(nn.Module):
-    def __init__(self, input_size, num_features_per_input, kernel_size=1, scale=True, init_frequency_range=(0, 3),
-                 use_feature_scaling=True):
+    def __init__(
+            self,
+            input_size,
+            num_features_per_input,
+            kernel_size=1,
+            scale=True,
+            init_frequency_range=(0, 5),
+            use_feature_scaling=True
+    ):
         """
         Optimized Learnable Fourier Transform Layer with a convolutional kernel for localized feature extraction.
 

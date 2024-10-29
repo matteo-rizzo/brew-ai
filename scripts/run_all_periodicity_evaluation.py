@@ -2,7 +2,7 @@ import json
 import subprocess
 
 # Load dataset configurations from JSON
-with open('benchmark/cat_clf_config.json') as f:
+with open('benchmark/num_clf_config.json') as f:
     dataset_configs = json.load(f)
 
 skipped_datasets = [
@@ -22,7 +22,7 @@ skipped_datasets = [
 ]
 
 # List of model types to iterate over
-model_types = ["tabbaseline", "tabfnet", "tabcnet", "tabpnpnet", "tabautopnpnet"]
+model_types = ["fnet", "cnet", "pnpnet", "autopnpnet"]
 
 # Iterate over dataset IDs and model types
 for dataset_id in dataset_configs.keys():

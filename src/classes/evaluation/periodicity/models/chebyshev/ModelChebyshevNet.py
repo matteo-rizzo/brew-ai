@@ -1,14 +1,17 @@
-import torch
-
+from src.classes.evaluation.periodicity.models.base.BaseModel import BaseModel
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevNet import ChebyshevNet
-from src.config import DEVICE
 
 
-class ModelChebyshevNet:
+class ModelChebyshevNet(BaseModel):
+    def __init__(self, input_size: int, num_chebyshev_terms: int, output_size: int):
+        """
+        ModelChebyshevNet is a wrapper for ChebyshevNet within the BaseModel framework, initializing it with specified
+        input, output, and Chebyshev term settings.
 
-    def __init__(self, input_size: int, num_chebyshev_terms: int = 5, output_size: int = 1):
-        self.network = ChebyshevNet(input_size, num_chebyshev_terms, output_size=output_size).to(DEVICE)
-
-    def predict(self, x_train_num_p_tsr: torch.Tensor, x_train_num_np_tsr: torch.Tensor) -> torch.Tensor:
-        x = torch.cat([x_train_num_p_tsr, x_train_num_np_tsr], dim=-1)
-        return self.network(x)
+        :param input_size: Number of input features for the model.
+        :param num_chebyshev_terms: Number of Chebyshev polynomial terms in each layer.
+        :param output_size: Desired size of the output.
+        """
+        # Initialize the ChebyshevNet with provided parameters
+        network = ChebyshevNet(input_size=input_size, num_chebyshev_terms=num_chebyshev_terms, output_size=output_size)
+        super().__init__(network=network)

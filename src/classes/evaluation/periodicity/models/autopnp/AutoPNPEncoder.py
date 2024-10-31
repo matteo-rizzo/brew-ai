@@ -19,6 +19,7 @@ class AutoPNPEncoder(nn.Module):
         # Fourier and Chebyshev layers
         self.fourier_layer = FourierEncoder(input_size, num_fourier_features)
         self.chebyshev_layer = ChebyshevEncoder(input_size, num_chebyshev_terms)
+        self.output_dim = self.fourier_layer.output_dim + self.chebyshev_layer.output_dim
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Apply Fourier and Chebyshev transformations

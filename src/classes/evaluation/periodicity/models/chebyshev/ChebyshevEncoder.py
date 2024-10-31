@@ -1,9 +1,19 @@
 import torch
 from torch import nn
 
+
 class ChebyshevEncoder(nn.Module):
-    def __init__(self, input_size, max_terms, num_heads=4, kernel_size=5, scale=True, normalize=True, residual=False,
-                 activation=nn.SiLU()):
+    def __init__(
+            self,
+            input_size,
+            max_terms,
+            num_heads=4,
+            kernel_size=5,
+            scale=True,
+            normalize=True,
+            residual=False,
+            activation=nn.SiLU()
+    ):
         """
         Multi-Headed Chebyshev Polynomial Encoder with residual connections, dynamic kernel interactions, and optional non-linear activation.
 
@@ -44,6 +54,8 @@ class ChebyshevEncoder(nn.Module):
         if self.normalize:
             self.norm_layer = nn.LayerNorm(input_size * max_terms * num_heads)
 
+        self.output_dim = max_terms * num_heads
+
     def forward(self, x):
         """
         Forward pass of the Multi-Headed ChebyshevEncoder.
@@ -73,7 +85,8 @@ class ChebyshevEncoder(nn.Module):
         head_outputs = []
         for i in range(self.num_heads):
             # Apply the learnable kernel for this head
-            x_head = torch.einsum('bim,imk->bik', x_cheb, self.kernels[i])  # Shape: [batch_size, input_size, kernel_size]
+            x_head = torch.einsum('bim,imk->bik', x_cheb,
+                                  self.kernels[i])  # Shape: [batch_size, input_size, kernel_size]
 
             # Apply learnable weights for this head
             x_head_weighted = x_head * self.poly_weights[i].unsqueeze(0)  # Shape: [batch_size, input_size, max_terms]

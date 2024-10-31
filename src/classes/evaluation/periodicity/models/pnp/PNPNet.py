@@ -1,78 +1,56 @@
-import torch
-from torch import nn
+from torch import Tensor
 
-from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevBlock import ChebyshevBlock
-from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
-from src.classes.evaluation.periodicity.models.fourier.FourierBlock import FourierBlock
-from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.base.BaseNet import BaseNet
+from src.classes.evaluation.periodicity.models.pnp.PNPEncoder import PNPEncoder
 
 
-class PNPNet(nn.Module):
+class PNPNet(BaseNet):
     def __init__(
             self,
             periodic_input_size: int,
             non_periodic_input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
-            output_size: int = 1
+            output_size: int,
+            use_residual: bool = False
     ):
         """
-        A combined neural network that integrates Fourier and Chebyshev layers with an MLP regressor.
-        Includes residual connections for both periodic and non-periodic inputs.
+        PNPNet integrates Fourier and Chebyshev transformations for periodic and non-periodic input features
+        within an MLP framework. Residual connections can be applied to enhance stability in feature processing.
 
-        :param periodic_input_size: Size of periodic input features.
-        :param non_periodic_input_size: Size of non-periodic input features.
-        :param num_fourier_features: Number of Fourier features to learn.
-        :param num_chebyshev_terms: Number of Chebyshev terms.
-        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
+        :param periodic_input_size: Number of periodic input features.
+        :param non_periodic_input_size: Number of non-periodic input features.
+        :param num_fourier_features: Number of Fourier features generated per periodic feature.
+        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for non-periodic features.
+        :param output_size: Desired size of the model's output; >1 indicates multi-output, 1 for single-output tasks.
+        :param use_residual: If True, applies residual connections in the processing layers.
         """
-        super(PNPNet, self).__init__()
+        # Initialize PNPEncoder for feature transformation
+        pnp_layer = PNPEncoder(
+            periodic_input_size=periodic_input_size,
+            non_periodic_input_size=non_periodic_input_size,
+            num_fourier_features=num_fourier_features,
+            num_chebyshev_terms=num_chebyshev_terms
+        )
 
-        # Fourier layer for periodic features (if applicable)
-        self.fourier_layer = FourierBlock(periodic_input_size,
-                                          num_fourier_features) if periodic_input_size > 0 else None
+        # Initialize BaseNet with the configured PNP layer and residual connections if specified
+        super(PNPNet, self).__init__(
+            processing_layer=pnp_layer,
+            output_size=output_size,
+            use_residual=use_residual
+        )
 
-        # Chebyshev layer for non-periodic features (if applicable)
-        self.chebyshev_layer = ChebyshevBlock(non_periodic_input_size,
-                                              num_chebyshev_terms) if non_periodic_input_size > 0 else None
-
-        # Calculate total features dynamically based on the presence of Fourier and Chebyshev layers
-        total_fourier_features = periodic_input_size * num_fourier_features * 2 if self.fourier_layer else 0
-        total_chebyshev_features = non_periodic_input_size * num_chebyshev_terms if self.chebyshev_layer else 0
-        total_features = total_fourier_features + total_chebyshev_features
-
-        # Choose between MLPClassifier and MLPRegressor based on output_size
-        if output_size > 1:
-            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
-        else:
-            self.mlp = MLPRegressor(input_size=total_features)
-
-    def forward(self, x_periodic: torch.Tensor = None, x_non_periodic: torch.Tensor = None) -> torch.Tensor:
+    def forward(self, x_periodic: Tensor, x_non_periodic: Tensor) -> Tensor:
         """
-        Forward pass of PNPNet with residual connections.
+        Forward pass through the PNPNet, applying Fourier and Chebyshev transformations to periodic and non-periodic
+        inputs, followed by MLP layers for final output.
 
-        :param x_periodic: Tensor of periodic features, shape [batch_size, periodic_input_size].
-        :param x_non_periodic: Tensor of non-periodic features, shape [batch_size, non_periodic_input_size].
-        :return: Output tensor of shape [batch_size, 1].
+        :param x_periodic: Tensor containing periodic input features.
+        :param x_non_periodic: Tensor containing non-periodic input features.
+        :return: Model output after processing.
         """
-        # Initialize an empty list to collect transformed features
-        transformed_features = []
+        # Apply the processing layer (PNPEncoder) to both periodic and non-periodic features
+        x_processed = self.processing_layer(x_periodic, x_non_periodic)
 
-        # Apply Fourier transformation if periodic features are provided
-        if self.fourier_layer and x_periodic is not None:
-            x_fourier = self.fourier_layer(x_periodic)
-            transformed_features.append(x_fourier)
-
-        # Apply Chebyshev transformation if non-periodic features are provided
-        if self.chebyshev_layer and x_non_periodic is not None:
-            x_chebyshev = self.chebyshev_layer(x_non_periodic)
-            transformed_features.append(x_chebyshev)
-
-        # Concatenate all non-empty transformed features
-        x_combined = torch.cat(transformed_features, dim=-1) if transformed_features else torch.empty(0,
-                                                                                                      device=x_periodic.device if x_periodic is not None else x_non_periodic.device)
-
-        # Pass through the MLP regressor
-        out = self.mlp(x_combined)
-
-        return out
+        # Apply the MLP layer for final output transformation
+        return self.mlp(x_processed)

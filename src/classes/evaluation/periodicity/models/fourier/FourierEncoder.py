@@ -45,6 +45,8 @@ class FourierEncoder(nn.Module):
         if self.use_feature_scaling:
             self.feature_scaling = nn.Parameter(torch.ones(input_size, num_features_per_input * 2))
 
+        self.output_dim = num_features_per_input * 2
+
     def forward(self, x):
         # Scale the input (if enabled)
         if self.scale:

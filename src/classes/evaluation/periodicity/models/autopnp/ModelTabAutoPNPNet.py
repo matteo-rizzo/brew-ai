@@ -1,34 +1,37 @@
-import torch
-
 from src.classes.evaluation.periodicity.models.autopnp.TabAutoPNPNet import TabAutoPNPNet
-from src.config import DEVICE
+from src.classes.evaluation.periodicity.models.base.BaseTabModel import BaseTabModel
 
 
-class ModelTabAutoPNPNet:
-
+class ModelTabAutoPNPNet(BaseTabModel):
     def __init__(
             self,
             continuous_input_size: int,
             categorical_input_size: int,
-            num_fourier_features: int = 16,
-            num_chebyshev_terms: int = 5,
-            hidden_size: int = 64,
-            output_size: int = 1
+            num_fourier_features: int,
+            num_chebyshev_terms: int,
+            hidden_size: int,
+            output_size: int
     ):
-        self.network = TabAutoPNPNet(
+        """
+        ModelTabAutoPNPNet initializes a TabAutoPNPNet within the BaseTabModel framework, enabling feature
+        transformations for both continuous and categorical inputs with Fourier and Chebyshev encodings.
+
+        :param continuous_input_size: Number of continuous input features.
+        :param categorical_input_size: Number of categorical (one-hot encoded) input features.
+        :param num_fourier_features: Number of Fourier features generated per continuous input feature.
+        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for continuous feature transformation.
+        :param hidden_size: Size of hidden layers for processing categorical features.
+        :param output_size: Desired output size; >1 indicates multi-output, 1 for single-output tasks.
+        """
+        # Initialize the TabAutoPNPNet with specified parameters
+        network = TabAutoPNPNet(
             continuous_input_size=continuous_input_size,
             categorical_input_size=categorical_input_size,
             num_fourier_features=num_fourier_features,
             num_chebyshev_terms=num_chebyshev_terms,
             hidden_size=hidden_size,
             output_size=output_size
-        ).to(DEVICE)
+        )
 
-    def predict(
-            self,
-            x_train_num_p_tsr: torch.Tensor,
-            x_train_num_np_tsr: torch.Tensor,
-            x_train_cat_tsr: torch.Tensor
-    ) -> torch.Tensor:
-        x_num_tsr = torch.cat([x_train_num_p_tsr, x_train_num_np_tsr], dim=-1)
-        return self.network(x_num_tsr, x_train_cat_tsr)
+        # Initialize BaseTabModel with the configured network
+        super(ModelTabAutoPNPNet, self).__init__(network=network)

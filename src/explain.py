@@ -60,7 +60,7 @@ def main():
 
         # Initialize and run the Explainer
         logger.info(f"Initializing explainer for {model_name}...")
-        explainer = Explainer(model=pipeline, x_train=x_train, y_train=y_train, log_dir=log_dir, model_type='regressor')
+        explainer = Explainer(model=pipeline, x_train=x_train, y_train=y_train, log_dir=log_dir, model_type='base')
 
         # Pick the first instance from the test set as an example for explanations
         query_instance = pd.DataFrame([x_test.iloc[0]])

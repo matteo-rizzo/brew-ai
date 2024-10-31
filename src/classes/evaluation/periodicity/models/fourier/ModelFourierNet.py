@@ -1,14 +1,23 @@
-import torch
-
+from src.classes.evaluation.periodicity.models.base.BaseModel import BaseModel
 from src.classes.evaluation.periodicity.models.fourier.FourierNet import FourierNet
-from src.config import DEVICE
 
 
-class ModelFourierNet:
+class ModelFourierNet(BaseModel):
+    def __init__(self, input_size: int, num_fourier_features: int, output_size: int):
+        """
+        ModelFourierNet initializes a FourierNet within the BaseModel framework, allowing for
+        data processing using Fourier transformations.
 
-    def __init__(self, input_size: int, num_fourier_features: int = 16, output_size: int = 1):
-        self.network = FourierNet(input_size, num_fourier_features, output_size=output_size).to(DEVICE)
+        :param input_size: Number of input features.
+        :param num_fourier_features: Number of Fourier features to generate for each input feature.
+        :param output_size: Size of the model's output; if >1, supports multi-output tasks.
+        """
+        # Initialize the FourierNet with specified parameters
+        network = FourierNet(
+            input_size=input_size,
+            num_fourier_features=num_fourier_features,
+            output_size=output_size
+        )
 
-    def predict(self, x_train_num_p_tsr: torch.Tensor, x_train_num_np_tsr: torch.Tensor) -> torch.Tensor:
-        x = torch.cat([x_train_num_p_tsr, x_train_num_np_tsr], dim=-1)
-        return self.network(x)
+        # Initialize the BaseModel with the configured network
+        super(ModelFourierNet, self).__init__(network=network)

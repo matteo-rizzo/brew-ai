@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-class MLPClassifier(nn.Module):
+class MLP(nn.Module):
     def __init__(
             self,
             input_size: int,
@@ -14,18 +14,17 @@ class MLPClassifier(nn.Module):
             activation_fn: nn.Module = nn.ReLU()
     ):
         """
-        MLPClassifier: A flexible Multi-Layer Perceptron classifier module.
+        MLP: A flexible Multi-Layer Perceptron base module.
 
         :param input_size: Size of the input features.
         :param hidden_size: Size of hidden layers.
-        :param output_size: Number of classes for classification tasks.
+        :param output_size: Size of the output (1 for regression tasks).
         :param num_layers: Number of fully connected hidden layers in the MLP.
         :param dropout_prob: Dropout probability for regularization.
         :param batch_norm: Whether to use batch normalization.
         :param activation_fn: Activation function to apply after each layer (default is ReLU).
-        :param output_activation: Activation function for the output layer (default is Softmax for classification).
         """
-        super(MLPClassifier, self).__init__()
+        super(MLP, self).__init__()
 
         # Build the network layers
         layers = []
@@ -43,7 +42,7 @@ class MLPClassifier(nn.Module):
 
                 current_input_size = hidden_size
 
-        # Output layer with output activation for classification
+        # Output layer (no activation function for regression)
         layers.append(nn.Linear(current_input_size, output_size))
 
         # Create the sequential network
@@ -51,8 +50,8 @@ class MLPClassifier(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass of the MLPClassifier.
+        Forward pass of the MLP.
         :param x: Input tensor of shape [batch_size, input_size].
-        :return: Output tensor of shape [batch_size, output_size] (classification probabilities).
+        :return: Output tensor of shape [batch_size, output_size] (regression predictions).
         """
         return self.network(x)

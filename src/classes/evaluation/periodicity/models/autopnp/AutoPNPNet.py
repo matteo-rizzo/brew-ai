@@ -1,36 +1,32 @@
-import torch
-from torch import nn
-
 from src.classes.evaluation.periodicity.models.autopnp.AutoPNPBlock import AutoPNPBlock
-from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
-from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
+from src.classes.evaluation.periodicity.models.base.BaseNet import BaseNet
 
 
-class AutoPNPNet(nn.Module):
+class AutoPNPNet(BaseNet):
     def __init__(
             self,
             input_size: int,
             num_fourier_features: int,
             num_chebyshev_terms: int,
             num_layers: int = 1,
-            compression_dim: int = 128,
-            output_size: int = 1
+            compression_dim: int = None,
+            output_size: int = 1,
+            use_residual: bool = True
     ):
         """
-        AutoPNPNet integrates the AutoPNPBlock with Fourier features, Chebyshev terms, and an MLP regressor or classifier.
-        Also includes a residual connection for stability.
+        AutoPNPNet integrates the AutoPNPBlock with Fourier and Chebyshev transformations in a multi-layer structure.
+        Includes an optional residual connection to enhance stability in feature learning.
 
-        :param input_size: Size of the input features.
-        :param num_fourier_features: Number of Fourier features to generate.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms.
-        :param num_layers: Number of AutoPNPEncoder layers to stack.
-        :param compression_dim: Dimension to compress features to between layers.
-        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
+        :param input_size: Number of input features.
+        :param num_fourier_features: Number of Fourier features to generate per layer.
+        :param num_chebyshev_terms: Number of Chebyshev polynomial terms per layer.
+        :param num_layers: Number of AutoPNPBlock layers to stack.
+        :param compression_dim: Dimension to compress features between layers; if None, retains input size.
+        :param output_size: Size of the network output; >1 indicates multi-output, 1 for single-output tasks.
+        :param use_residual: Whether to apply a residual connection for continuous feature enhancement.
         """
-        super(AutoPNPNet, self).__init__()
-
-        # Initialize AutoPNPBlock with Fourier and Chebyshev features
-        self.autopnp_block = AutoPNPBlock(
+        # Initialize the AutoPNPBlock with specified parameters
+        autopnp_block = AutoPNPBlock(
             input_size=input_size,
             num_fourier_features=num_fourier_features,
             num_chebyshev_terms=num_chebyshev_terms,
@@ -38,24 +34,9 @@ class AutoPNPNet(nn.Module):
             compression_dim=compression_dim
         )
 
-        # Feature dimensions after the AutoPNPBlock transformations
-        total_features = self.autopnp_block.output_dim
-
-        # Choose between MLPClassifier and MLPRegressor based on output_size
-        if output_size > 1:
-            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
-        else:
-            self.mlp = MLPRegressor(input_size=total_features)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass for AutoPNPNet.
-
-        :param x: Input tensor of shape [batch_size, input_size].
-        :return: Output tensor of shape [batch_size, output_size].
-        """
-        # Pass input through the AutoPNPBlock
-        x_combined = self.autopnp_block(x)
-
-        # MLP (regressor or classifier) on the combined features
-        return self.mlp(x_combined)
+        # Initialize BaseNet with AutoPNPBlock and optional residual connection
+        super(AutoPNPNet, self).__init__(
+            processing_layer=autopnp_block,
+            output_size=output_size,
+            use_residual=use_residual
+        )

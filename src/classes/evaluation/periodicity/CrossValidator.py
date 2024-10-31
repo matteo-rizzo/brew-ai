@@ -1,3 +1,4 @@
+import os.path
 import time
 from typing import Tuple, Dict, List
 
@@ -7,10 +8,10 @@ from sklearn.model_selection import KFold
 from torch import nn, optim
 
 from src.classes.data.DataSplitter import DataSplitter
-from src.classes.evaluation.loss.PNPLoss import PNPMSELoss
 from src.classes.evaluation.periodicity.Evaluator import Evaluator
 from src.classes.evaluation.periodicity.ModelFactory import ModelFactory
 from src.classes.evaluation.periodicity.Trainer import Trainer
+from src.classes.evaluation.periodicity.loss.PNPLoss import PNPMSELoss
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
@@ -87,7 +88,7 @@ class CrossValidator:
             model = self._initialize_model(input_sizes, output_size)
 
             # Train model
-            trained_model, train_losses, val_losses = self._train_model(model, split_data)
+            trained_model, train_losses, val_losses = self._train_model(model, split_data, fold)
 
             # Evaluate model
             evaluator = Evaluator(trained_model, self.model_name, self.log_dir)
@@ -106,8 +107,11 @@ class CrossValidator:
         # Compute and log average metrics
         self._compute_and_log_avg_metrics(cv_metrics)
 
-    def _split_data(self, train_val_index: List[int], test_index: List[int]) -> Tuple[
-        Dict[str, torch.Tensor], Dict[str, torch.Tensor], Dict[str, int], int]:
+    def _split_data(
+            self,
+            train_val_index: List[int],
+            test_index: List[int]
+    ) -> Tuple[Dict[str, torch.Tensor], Dict[str, torch.Tensor], Dict[str, int], int]:
         """
         Split the data into training, validation, and test sets.
 
@@ -116,7 +120,6 @@ class CrossValidator:
         :return: Tuple containing split data (train/val), test data, and input sizes.
         """
         logger.info("Splitting data into training/validation and test sets.")
-        split_start_time = time.time()
 
         x_train_val, x_test = self.x[train_val_index], self.x[test_index]
         y_train_val, y_test = self.y[train_val_index], self.y[test_index]
@@ -140,8 +143,6 @@ class CrossValidator:
         input_sizes = split_data['input_sizes']
         output_size = self.y.nunique() if CLASSIFICATION else 1
 
-        split_duration = time.time() - split_start_time
-        logger.info(f"Data splitting completed in {split_duration:.2f} seconds.")
         return split_data, test_data, input_sizes, output_size
 
     def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> nn.Module:
@@ -166,13 +167,18 @@ class CrossValidator:
         logger.info(f"Model initialization completed.")
         return model
 
-    def _train_model(self, model: nn.Module, split_data: Dict[str, torch.Tensor]) -> Tuple[
-        nn.Module, List[float], List[float]]:
+    def _train_model(
+            self,
+            model: nn.Module,
+            split_data: Dict[str, torch.Tensor],
+            fold: int
+    ) -> Tuple[nn.Module, List[float], List[float]]:
         """
         Train the model using the Trainer class.
 
         :param model: Initialized model to be trained.
         :param split_data: Dictionary containing the training and validation data.
+        :param fold: Index of the current fold.
         :return: A tuple containing the trained model, training losses, and validation losses.
         """
         logger.info("Starting model training.")
@@ -192,6 +198,7 @@ class CrossValidator:
 
         train_losses, val_losses = trainer.train(split_data['train'], split_data['val'])
         trained_model = trainer.get_model()
+        torch.save(trained_model.network.state_dict(), os.path.join(self.log_dir, f'{self.model_name}_fold_{fold}.pth'))
 
         train_duration = time.time() - train_start_time
         logger.info(f"Training completed in {train_duration:.2f} seconds.")

@@ -17,7 +17,7 @@ class Explainer:
     """
 
     def __init__(self, model: BaseEstimator, x_train: pd.DataFrame, y_train: pd.DataFrame, log_dir: str,
-                 model_type: str = "regressor"):
+                 model_type: str = "base"):
         """
         Initialize the Explainer class with model, training data, and log directory.
 
@@ -25,7 +25,7 @@ class Explainer:
         :param x_train: Training data (Pandas DataFrame)
         :param y_train: Training groundtruth (Pandas DataFrame)
         :param log_dir: Directory to save explanation results
-        :param model_type: Type of the model, either 'regressor' or 'classifier'
+        :param model_type: Type of the model, either 'base' or 'classifier'
         """
         self.model = model.named_steps['model'] if hasattr(model, 'named_steps') else model
         self.preprocessor = model.named_steps['preprocessor'] if hasattr(model, 'named_steps') else None

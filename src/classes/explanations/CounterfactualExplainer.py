@@ -27,7 +27,7 @@ class CounterfactualExplainer:
         :param model: Trained machine learning model
         :param x_train: Training dataset for the model
         :param y_train: Training labels for the model
-        :param model_type: Type of the model ('regressor' or 'classifier')
+        :param model_type: Type of the model ('base' or 'classifier')
         :param log_dir: Directory to save the counterfactual results
         """
         self.model = model
@@ -93,7 +93,7 @@ class CounterfactualExplainer:
         dice = Dice(self.dice_data, self.dice_model, method="random")
 
         # Set desired_range for regression tasks if applicable
-        if self.model_type == 'regressor' and self.desired_range:
+        if self.model_type == 'base' and self.desired_range:
             logger.info(f"Using desired range {self.desired_range} for regression task.")
             counterfactuals = dice.generate_counterfactuals(
                 query_instance, total_CFs=total_CFs, desired_range=self.desired_range, verbose=True

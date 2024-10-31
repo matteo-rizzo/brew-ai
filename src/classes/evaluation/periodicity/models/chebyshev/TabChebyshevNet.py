@@ -1,64 +1,45 @@
-import torch
-from torch import Tensor, nn
-
-from src.classes.evaluation.periodicity.models.categorical.CategoricalMLP import CategoricalMLP
+from src.classes.evaluation.periodicity.models.base.BaseTabNet import BaseTabNet
 from src.classes.evaluation.periodicity.models.chebyshev.ChebyshevBlock import ChebyshevBlock
-from src.classes.evaluation.periodicity.models.classifier.MLPClassifier import MLPClassifier
-from src.classes.evaluation.periodicity.models.regressor.MLPRegressor import MLPRegressor
 
 
-class TabChebyshevNet(nn.Module):
+class TabChebyshevNet(BaseTabNet):
     def __init__(
             self,
             continuous_input_size: int,
             categorical_input_size: int,
             num_chebyshev_terms: int,
             hidden_size: int,
-            output_size: int = 1
+            output_size: int,
+            num_layers: int = 1,
+            compression_dim: int = 1,
+            dropout_prob: float = 0.2,
+            use_residual: bool = True
     ):
         """
-        TabChebyshevNet that accepts one-hot encoded categorical features and applies a residual connection.
+        TabChebyshevNet integrates Chebyshev transformations for continuous features with an MLP for categorical
+        features, optionally including a residual connection for continuous features.
 
         :param continuous_input_size: Number of continuous input features.
-        :param categorical_input_size: Total number of one-hot encoded categorical features.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms.
-        :param hidden_size: Size of hidden layers.
-        :param output_size: Output size; if > 1, a classifier is used; otherwise, a regressor.
+        :param categorical_input_size: Number of one-hot encoded categorical features.
+        :param num_chebyshev_terms: Number of Chebyshev polynomial terms to use in ChebyshevBlock.
+        :param hidden_size: Size of hidden layers for categorical feature processing.
+        :param output_size: Size of the network output; >1 indicates classification, 1 indicates regression.
+        :param use_residual: Whether to apply a residual connection to continuous features.
         """
-        super().__init__()
+        # Initialize the ChebyshevBlock for processing continuous features
+        chebyshev_layer = ChebyshevBlock(
+            input_size=continuous_input_size,
+            num_chebyshev_terms=num_chebyshev_terms,
+            num_layers=num_layers,
+            compression_dim=compression_dim,
+            dropout_prob=dropout_prob
+        )
 
-        # Chebyshev layer for processing continuous features
-        self.chebyshev_layer = ChebyshevBlock(continuous_input_size, num_chebyshev_terms)
-
-        # Layer processing categorical features
-        self.categorical_layer = CategoricalMLP(categorical_input_size, hidden_size)
-
-        # Update total feature size (continuous + categorical)
-        total_continuous_features = continuous_input_size * num_chebyshev_terms
-        total_features = total_continuous_features + hidden_size  # Hidden size of processed categorical features
-
-        # Choose between MLPClassifier and MLPRegressor based on output_size
-        if output_size > 1:
-            self.mlp = MLPClassifier(input_size=total_features, output_size=output_size)
-        else:
-            self.mlp = MLPRegressor(input_size=total_features)
-
-    def forward(self, x_continuous: Tensor, x_categorical: Tensor) -> Tensor:
-        """
-        Forward pass of the network.
-
-        :param x_continuous: Tensor of continuous features, shape [batch_size, continuous_input_size].
-        :param x_categorical: Tensor of one-hot encoded categorical features, shape [batch_size, categorical_input_size].
-        :return: Output tensor after passing through the network.
-        """
-        # Use ChebyshevNet's forward method for continuous features
-        x_chebyshev = self.chebyshev_layer(x_continuous)  # Shape: [batch_size, total_continuous_features]
-
-        # Process categorical features
-        x_categorical_processed = self.categorical_layer(x_categorical)  # Shape: [batch_size, hidden_size]
-
-        # Combine continuous (Chebyshev + residual) and categorical features - Shape: [batch_size, total_features]
-        x_combined = torch.cat([x_chebyshev, x_categorical_processed], dim=1)
-
-        # Pass combined features through the MLPRegressor
-        return self.mlp(x_combined)
+        # Initialize the BaseTabNet with ChebyshevBlock for continuous features and CategoricalMLP for categorical
+        super(TabChebyshevNet, self).__init__(
+            processing_layer=chebyshev_layer,
+            categorical_input_size=categorical_input_size,
+            hidden_size=hidden_size,
+            output_size=output_size,
+            use_residual=use_residual
+        )

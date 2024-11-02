@@ -7,7 +7,7 @@ class AutoPNPNet(BaseNet):
             self,
             input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             num_layers: int = 1,
             compression_dim: int = None,
             output_size: int = 1,
@@ -19,7 +19,7 @@ class AutoPNPNet(BaseNet):
 
         :param input_size: Number of input features.
         :param num_fourier_features: Number of Fourier features to generate per layer.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms per layer.
+        :param max_poly_terms: Number of Chebyshev polynomial terms per layer.
         :param num_layers: Number of AutoPNPBlock layers to stack.
         :param compression_dim: Dimension to compress features between layers; if None, retains input size.
         :param output_size: Size of the network output; >1 indicates multi-output, 1 for single-output tasks.
@@ -29,7 +29,7 @@ class AutoPNPNet(BaseNet):
         autopnp_block = AutoPNPBlock(
             input_size=input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms,
+            max_poly_terms=max_poly_terms,
             num_layers=num_layers,
             compression_dim=compression_dim
         )

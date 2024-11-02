@@ -4,15 +4,17 @@ import torch.nn.functional as F
 
 
 class PNPMSELoss(torch.nn.Module):
-    def __init__(self,
-                 fourier_weight=1.0,
-                 chebyshev_weight=1.0,
-                 mse_weight=1.0,
-                 weight_frequencies=False,
-                 fft_dim=-1,
-                 fourier_norm_method='max',
-                 frequency_weight_fn=None,
-                 chebyshev_dim=-1):
+    def __init__(
+            self,
+            fourier_weight=1.0,
+            chebyshev_weight=1.0,
+            mse_weight=1.0,
+            weight_frequencies=True,
+            fft_dim=-1,
+            fourier_norm_method='max',
+            frequency_weight_fn=None,
+            chebyshev_dim=-1
+    ):
         """
         Hybrid loss function combining MSE, Chebyshev, and Fourier losses with customizable options.
 

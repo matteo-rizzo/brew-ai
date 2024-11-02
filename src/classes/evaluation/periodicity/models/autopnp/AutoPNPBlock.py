@@ -7,7 +7,7 @@ class AutoPNPBlock(BaseBlock):
             self,
             input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             num_layers: int = 1,
             compression_dim: int = None,
             dropout_prob: float = 0.1
@@ -18,7 +18,7 @@ class AutoPNPBlock(BaseBlock):
 
         :param input_size: Number of input features.
         :param num_fourier_features: Number of Fourier features to generate per layer.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms in each layer.
+        :param max_poly_terms: Number of Chebyshev polynomial terms in each layer.
         :param num_layers: Number of stacked AutoPNPEncoder layers.
         :param compression_dim: Target dimensionality for feature compression between layers; if None, defaults to input size.
         :param dropout_prob: Probability of dropout applied after each batch normalization layer (0 to 1).
@@ -29,7 +29,7 @@ class AutoPNPBlock(BaseBlock):
             encoder=AutoPNPEncoder,
             encoder_params={
                 "num_fourier_features": num_fourier_features,
-                "num_chebyshev_terms": num_chebyshev_terms
+                "max_poly_terms": max_poly_terms
             },
             num_layers=num_layers,
             compression_dim=compression_dim,

@@ -10,7 +10,7 @@ class PNPNet(BaseNet):
             periodic_input_size: int,
             non_periodic_input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             output_size: int,
             use_residual: bool = False
     ):
@@ -21,7 +21,7 @@ class PNPNet(BaseNet):
         :param periodic_input_size: Number of periodic input features.
         :param non_periodic_input_size: Number of non-periodic input features.
         :param num_fourier_features: Number of Fourier features generated per periodic feature.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for non-periodic features.
+        :param max_poly_terms: Number of Chebyshev polynomial terms for non-periodic features.
         :param output_size: Desired size of the model's output; >1 indicates multi-output, 1 for single-output tasks.
         :param use_residual: If True, applies residual connections in the processing layers.
         """
@@ -30,7 +30,7 @@ class PNPNet(BaseNet):
             periodic_input_size=periodic_input_size,
             non_periodic_input_size=non_periodic_input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms
+            max_poly_terms=max_poly_terms
         )
 
         # Initialize BaseNet with the configured PNP layer and residual connections if specified

@@ -22,7 +22,7 @@ skipped_datasets = [
 ]
 
 # List of model types to iterate over
-model_types = ["fnet", "cnet", "pnpnet", "autopnpnet"]
+model_types = ["fnet", "opnet", "pnpnet", "autopnpnet"]
 
 # Iterate over dataset IDs and model types
 for dataset_id in dataset_configs.keys():

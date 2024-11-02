@@ -3,13 +3,13 @@ from torch import nn
 from src.classes.evaluation.periodicity.models.autopnp.ModelAutoPNPNet import ModelAutoPNPNet
 from src.classes.evaluation.periodicity.models.autopnp.ModelTabAutoPNPNet import ModelTabAutoPNPNet
 from src.classes.evaluation.periodicity.models.baseline.ModelBaseline import ModelBaseline
-from src.classes.evaluation.periodicity.models.chebyshev.ModelChebyshevNet import ModelChebyshevNet
-from src.classes.evaluation.periodicity.models.chebyshev.ModelTabChebyshevNet import ModelTabChebyshevNet
+from src.classes.evaluation.periodicity.models.orthogonal_poly.ModelOrthogonalPolynomialNet import ModelOrthogonalPolynomialNet
+from src.classes.evaluation.periodicity.models.orthogonal_poly.ModelTabOrthogonalPolynomialNet import ModelTabOrthogonalPolynomialNet
 from src.classes.evaluation.periodicity.models.fourier.ModelFourierNet import ModelFourierNet
 from src.classes.evaluation.periodicity.models.fourier.ModelTabFourierNet import ModelTabFourierNet
 from src.classes.evaluation.periodicity.models.pnp.ModelPNPNet import ModelPNPNet
 from src.classes.evaluation.periodicity.models.pnp.ModelTabPNPNet import ModelTabPNPNet
-from src.config import NUM_FOURIER_FEATURES, NUM_CHEBYSHEV_TERMS, HIDDEN_SIZE
+from src.config import NUM_FOURIER_FEATURES, MAX_POLY_TERMS, CAT_HIDDEN_SIZE
 
 
 class ModelFactory:
@@ -22,8 +22,8 @@ class ModelFactory:
             output_size: int,
             dataset_config: dict,
             num_fourier_features: int = NUM_FOURIER_FEATURES,
-            num_chebyshev_terms: int = NUM_CHEBYSHEV_TERMS,
-            hidden_size: int = HIDDEN_SIZE,
+            max_poly_terms: int = MAX_POLY_TERMS,
+            hidden_size: int = CAT_HIDDEN_SIZE,
     ):
         self.models = {
             "fnet": ModelFourierNet(
@@ -38,15 +38,15 @@ class ModelFactory:
                 hidden_size=hidden_size,
                 output_size=output_size
             ),
-            "cnet": ModelChebyshevNet(
+            "opnet": ModelOrthogonalPolynomialNet(
                 input_size=num_periodic_input_size + num_non_periodic_input_size,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 output_size=output_size
             ),
-            "tabcnet": ModelTabChebyshevNet(
+            "tabcnet": ModelTabOrthogonalPolynomialNet(
                 continuous_input_size=num_periodic_input_size + num_non_periodic_input_size,
                 categorical_input_size=cat_input_size,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 hidden_size=hidden_size,
                 output_size=output_size
             ),
@@ -54,7 +54,7 @@ class ModelFactory:
                 periodic_input_size=num_periodic_input_size,
                 non_periodic_input_size=num_non_periodic_input_size,
                 num_fourier_features=num_fourier_features,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 output_size=output_size
             ),
             "tabpnpnet": ModelTabPNPNet(
@@ -62,21 +62,21 @@ class ModelFactory:
                 non_periodic_input_size=num_non_periodic_input_size,
                 categorical_input_size=cat_input_size,
                 num_fourier_features=num_fourier_features,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 hidden_size=hidden_size,
                 output_size=output_size
             ),
             "autopnpnet": ModelAutoPNPNet(
                 input_size=num_periodic_input_size + num_non_periodic_input_size,
                 num_fourier_features=num_fourier_features,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 output_size=output_size
             ),
             "tabautopnpnet": ModelTabAutoPNPNet(
                 continuous_input_size=num_periodic_input_size + num_non_periodic_input_size,
                 categorical_input_size=cat_input_size,
                 num_fourier_features=num_fourier_features,
-                num_chebyshev_terms=num_chebyshev_terms,
+                max_poly_terms=max_poly_terms,
                 hidden_size=hidden_size,
                 output_size=output_size
             ),

@@ -13,15 +13,16 @@ BENCHMARK = False
 # SUITE_ID = 335 # Regression on numerical and categorical features
 # SUITE_ID = 336 # Regression on numerical features
 # SUITE_ID = 334 # Classification on numerical and categorical features
-SUITE_ID = 337 # Classification on numerical features
+SUITE_ID = 337  # Classification on numerical features
 
 CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])
 
 # Periodicity
-MODEL = "fnet"  # 'fnet', 'tabfnet', 'cnet', 'tabcnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
-NUM_CHEBYSHEV_TERMS = 5
+MODEL = "opnet"  # 'fnet', 'tabfnet', 'opnet', 'tabopnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
+CAT_HIDDEN_SIZE = 256
 NUM_FOURIER_FEATURES = 100
-HIDDEN_SIZE = 256
+MAX_POLY_TERMS = 5
+POLY_TYPE = "chebyshev"  # 'chebyshev', 'legendre', 'hermite', 'laguerre'
 
 # Training
 EPOCHS = 1000

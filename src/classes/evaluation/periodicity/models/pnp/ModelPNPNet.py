@@ -11,14 +11,14 @@ class ModelPNPNet:
             periodic_input_size: int,
             non_periodic_input_size: int,
             num_fourier_features: int = 16,
-            num_chebyshev_terms: int = 5,
+            max_poly_terms: int = 5,
             output_size: int = 1
     ):
         self.network = PNPNet(
             periodic_input_size=periodic_input_size,
             non_periodic_input_size=non_periodic_input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms,
+            max_poly_terms=max_poly_terms,
             output_size=output_size
         ).to(DEVICE)
 

@@ -7,7 +7,7 @@ class ModelAutoPNPNet(BaseModel):
             self,
             input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             output_size: int
     ):
         """
@@ -16,14 +16,14 @@ class ModelAutoPNPNet(BaseModel):
 
         :param input_size: Number of input features.
         :param num_fourier_features: Number of Fourier features to generate per input feature.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for each layer.
+        :param max_poly_terms: Number of Chebyshev polynomial terms for each layer.
         :param output_size: Desired output size; >1 indicates multi-output, 1 for single-output tasks.
         """
         # Initialize the AutoPNPNet with specified parameters
         network = AutoPNPNet(
             input_size=input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms,
+            max_poly_terms=max_poly_terms,
             output_size=output_size
         )
 

@@ -15,7 +15,7 @@ from src.classes.evaluation.periodicity.loss.PNPLoss import PNPMSELoss
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
-from src.config import DEVICE, RANDOM_SEED, CLASSIFICATION
+from src.config import DEVICE, RANDOM_SEED, CLASSIFICATION, PATIENCE
 
 logger = Logger()
 
@@ -193,7 +193,8 @@ class CrossValidator:
             criterion=criterion,
             optimizer=optimizer,
             batch_size=self.batch_size,
-            num_epochs=self.num_epochs
+            num_epochs=self.num_epochs,
+            patience=PATIENCE
         )
 
         train_losses, val_losses = trainer.train(split_data['train'], split_data['val'])

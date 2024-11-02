@@ -8,7 +8,7 @@ class TabAutoPNPNet(BaseTabNet):
             continuous_input_size: int,
             categorical_input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             hidden_size: int,
             output_size: int,
             use_residual: bool = True
@@ -20,7 +20,7 @@ class TabAutoPNPNet(BaseTabNet):
         :param continuous_input_size: Number of continuous input features.
         :param categorical_input_size: Number of one-hot encoded categorical features.
         :param num_fourier_features: Number of Fourier features generated per continuous feature.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for continuous feature transformation.
+        :param max_poly_terms: Number of Chebyshev polynomial terms for continuous feature transformation.
         :param hidden_size: Size of hidden layers for processing categorical features.
         :param output_size: Desired output size; >1 indicates multi-output, 1 for single-output tasks.
         :param use_residual: If True, applies a residual connection to the continuous feature transformations.
@@ -30,7 +30,7 @@ class TabAutoPNPNet(BaseTabNet):
         autopnp_layer = AutoPNPBlock(
             input_size=continuous_input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms
+            max_poly_terms=max_poly_terms
         )
 
         # Initialize BaseTabNet with the AutoPNP layer for continuous features and MLP for categorical features

@@ -8,7 +8,7 @@ class ModelTabAutoPNPNet(BaseTabModel):
             continuous_input_size: int,
             categorical_input_size: int,
             num_fourier_features: int,
-            num_chebyshev_terms: int,
+            max_poly_terms: int,
             hidden_size: int,
             output_size: int
     ):
@@ -19,7 +19,7 @@ class ModelTabAutoPNPNet(BaseTabModel):
         :param continuous_input_size: Number of continuous input features.
         :param categorical_input_size: Number of categorical (one-hot encoded) input features.
         :param num_fourier_features: Number of Fourier features generated per continuous input feature.
-        :param num_chebyshev_terms: Number of Chebyshev polynomial terms for continuous feature transformation.
+        :param max_poly_terms: Number of Chebyshev polynomial terms for continuous feature transformation.
         :param hidden_size: Size of hidden layers for processing categorical features.
         :param output_size: Desired output size; >1 indicates multi-output, 1 for single-output tasks.
         """
@@ -28,7 +28,7 @@ class ModelTabAutoPNPNet(BaseTabModel):
             continuous_input_size=continuous_input_size,
             categorical_input_size=categorical_input_size,
             num_fourier_features=num_fourier_features,
-            num_chebyshev_terms=num_chebyshev_terms,
+            max_poly_terms=max_poly_terms,
             hidden_size=hidden_size,
             output_size=output_size
         )

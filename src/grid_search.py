@@ -5,7 +5,7 @@ from sklearn.linear_model._cd_fast import ConvergenceWarning
 
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.data.DatasetLoader import DatasetLoader
-from src.classes.evaluation.grid_search.ExperimentHandler import ExperimentHandler
+from src.classes.grid_search.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
 from src.config import BASE_LOG_DIR, DATASET_ID
 from src.functions.utils import make_log_dir

@@ -1,11 +1,8 @@
 {
   "beer-fermentation": {
-    "n_num_features": 23,
+    "n_num_features": 26,
     "cat_cols": [
-      "Brand",
-      "Chill-back Start Time",
-      "Durata raffreddamento",
-      "Occupancy in fermentation"
+      "Brand"
     ],
     "cat_cards": [
       2,

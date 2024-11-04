@@ -13,18 +13,19 @@ class DataPreprocessor:
     Handles data preprocessing such as scaling, encoding, and optional PCA for dimensionality reduction.
     """
 
-    def __init__(self, x: pd.DataFrame, y: pd.Series, cat_cols: list):
+    def __init__(self, x: pd.DataFrame, y: pd.Series, cat_cols: list, num_cols: list = None):
         """
         Initialize the DataPreprocessor class.
 
         :param x: Input feature DataFrame
         :param y: Target variable Series
         :param cat_cols: List of categorical column names in x
+        :param num_cols: Optional List of numerical column names in x
         """
         self.x = x
         self.y = y
         self.cat_cols = cat_cols
-        self.num_cols = [col for col in self.x.columns if col not in cat_cols]
+        self.num_cols = num_cols if num_cols else [col for col in self.x.columns if col not in cat_cols]
 
         logger.info(
             f"DataPreprocessor initialized with {len(self.num_cols)} numerical and {len(self.cat_cols)} categorical columns.")

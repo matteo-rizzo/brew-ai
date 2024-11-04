@@ -1,7 +1,7 @@
 import argparse
 
 from src.classes.data.DatasetLoader import DatasetLoader
-from src.classes.evaluation.periodicity.ExperimentHandler import ExperimentHandler
+from src.classes.periodicity.ExperimentHandler import ExperimentHandler
 from src.classes.utils.Logger import Logger
 from src.config import MODEL, DATASET_ID
 from src.functions.utils import make_log_dir

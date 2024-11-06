@@ -4,7 +4,7 @@ from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import ElasticNet
-from sklearn.neural_network import MLP
+from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 
 from src.classes.utils.Logger import Logger
@@ -30,7 +30,7 @@ class ModelConfigFactory:
 
         self.models_config: Dict[str, Tuple] = {
             'mlpregressor': (
-                MLP(
+                MLPRegressor(
                     max_iter=MAX_ITERATIONS,
                     learning_rate="adaptive",
                     hidden_layer_sizes=(128, 64),

@@ -8,7 +8,7 @@ NUM_FOLDS = 5
 TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DATASET_ID = "beer-fermentation"
-BENCHMARK = False
+BENCHMARK = True
 
 # SUITE_ID = 335 # Regression on numerical and categorical features
 # SUITE_ID = 336 # Regression on numerical features

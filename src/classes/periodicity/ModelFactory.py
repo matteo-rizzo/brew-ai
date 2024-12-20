@@ -1,7 +1,9 @@
-from torch import nn
+from typing import Union
 
 from src.classes.periodicity.models.autopnp.ModelAutoPNPNet import ModelAutoPNPNet
 from src.classes.periodicity.models.autopnp.ModelTabAutoPNPNet import ModelTabAutoPNPNet
+from src.classes.periodicity.models.base.BaseModel import BaseModel
+from src.classes.periodicity.models.base.BaseTabModel import BaseTabModel
 from src.classes.periodicity.models.baseline.ModelBaseline import ModelBaseline
 from src.classes.periodicity.models.fourier.ModelFourierNet import ModelFourierNet
 from src.classes.periodicity.models.fourier.ModelTabFourierNet import ModelTabFourierNet
@@ -88,7 +90,7 @@ class ModelFactory:
             "tabbaseline": lambda: ModelBaseline(dataset_config, output_size)
         }
 
-    def get_model(self, model_name: str) -> nn.Module:
+    def get_model(self, model_name: str) -> Union[BaseModel, BaseTabModel]:
         """
         Lazily initialize and return the requested model.
 

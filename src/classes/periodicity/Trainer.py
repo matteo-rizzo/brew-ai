@@ -1,9 +1,10 @@
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Union
 
 import torch
-from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 
+from src.classes.periodicity.models.base.BaseModel import BaseModel
+from src.classes.periodicity.models.base.BaseTabModel import BaseTabModel
 from src.classes.utils.Logger import Logger
 from src.config import DEVICE, CLASSIFICATION
 
@@ -13,7 +14,7 @@ logger = Logger()
 class Trainer:
     def __init__(
             self,
-            model: nn.Module,
+            model: Union[BaseModel, BaseTabModel],
             model_name: str,
             criterion,
             optimizer,
@@ -192,7 +193,7 @@ class Trainer:
         dataset = TensorDataset(x_num_p, x_num_np, x_cat, y)
         return DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
 
-    def get_model(self) -> nn.Module:
+    def get_model(self) -> Union[BaseModel, BaseTabModel]:
         """
         Get the trained model.
 

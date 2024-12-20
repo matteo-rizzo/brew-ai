@@ -1,6 +1,6 @@
 import os.path
 import time
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Union
 
 import pandas as pd
 import torch
@@ -12,6 +12,8 @@ from src.classes.periodicity.Evaluator import Evaluator
 from src.classes.periodicity.ModelFactory import ModelFactory
 from src.classes.periodicity.Trainer import Trainer
 from src.classes.periodicity.loss.PNPLoss import PNPMSELoss
+from src.classes.periodicity.models.base.BaseModel import BaseModel
+from src.classes.periodicity.models.base.BaseTabModel import BaseTabModel
 from src.classes.utils.Logger import Logger
 from src.classes.utils.MetricsCalculator import MetricsCalculator
 from src.classes.utils.Plotter import Plotter
@@ -145,7 +147,7 @@ class CrossValidator:
 
         return split_data, test_data, input_sizes, output_size
 
-    def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> nn.Module:
+    def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> BaseModel | BaseTabModel:
         """
         Initialize the model using ModelFactory.
 
@@ -169,10 +171,10 @@ class CrossValidator:
 
     def _train_model(
             self,
-            model: nn.Module,
+            model: Union[BaseModel, BaseTabModel],
             split_data: Dict[str, torch.Tensor],
             fold: int
-    ) -> Tuple[nn.Module, List[float], List[float]]:
+    ) -> tuple[BaseModel | BaseTabModel, list[float], list[float]]:
         """
         Train the model using the Trainer class.
 

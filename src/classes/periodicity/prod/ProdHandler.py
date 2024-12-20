@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Union
 
 import pandas as pd
 import torch
@@ -10,11 +10,14 @@ from src.classes.data.DataSplitter import DataSplitter
 from src.classes.periodicity.ModelFactory import ModelFactory
 from src.classes.periodicity.Trainer import Trainer
 from src.classes.periodicity.loss.PNPLoss import PNPMSELoss
+from src.classes.periodicity.models.base.BaseModel import BaseModel
+from src.classes.periodicity.models.base.BaseTabModel import BaseTabModel
 from src.classes.utils.Logger import Logger
 from src.classes.utils.Plotter import Plotter
 from src.config import CLASSIFICATION, PATIENCE
 
 logger = Logger()
+
 
 class ProdHandler:
     def __init__(
@@ -106,7 +109,7 @@ class ProdHandler:
         logger.info("Data splitting completed.")
         return split_data, input_sizes, output_size
 
-    def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> nn.Module:
+    def _initialize_model(self, input_sizes: Dict[str, int], output_size: int) -> Union[BaseModel, BaseTabModel]:
         """
         Initialize the model using the ModelFactory.
 
@@ -130,9 +133,9 @@ class ProdHandler:
 
     def _train_model(
             self,
-            model: nn.Module,
+            model: Union[BaseModel, BaseTabModel],
             split_data: Dict[str, torch.Tensor]
-    ) -> Tuple[nn.Module, List[float], List[float]]:
+    ) -> tuple[BaseModel | BaseTabModel, list[float], list[float]]:
         """
         Train the model using the Trainer class.
 
@@ -164,7 +167,7 @@ class ProdHandler:
 
         # Save the trained model
         model_path = os.path.join(self.log_dir, f'{self.model_name}.pth')
-        torch.save(trained_model, model_path)  # Save the entire model for production
+        torch.save(trained_model.network.state_dict(), model_path)  # Save the entire model for production
         logger.info(f"Model saved to {model_path}")
 
         train_duration = time.time() - start_time

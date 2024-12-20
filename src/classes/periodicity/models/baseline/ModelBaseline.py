@@ -21,11 +21,11 @@ class ModelBaseline:
 
     def predict(
             self,
-            x_train_num_p_tsr: torch.Tensor,
-            x_train_num_np_tsr: torch.Tensor,
-            x_train_cat_tsr: torch.Tensor
+            x_num_p: torch.Tensor,
+            x_num_np: torch.Tensor,
+            x_cat: torch.Tensor
     ) -> torch.Tensor:
-        x_num_tsr = torch.cat([x_train_num_p_tsr, x_train_num_np_tsr], dim=-1)
-        if not x_train_cat_tsr.numel():
-            x_train_cat_tsr = None
-        return self.network(x_num_tsr, x_train_cat_tsr)
+        x_num_tsr = torch.cat([x_num_p, x_num_np], dim=-1)
+        if not x_cat.numel():
+            x_cat = None
+        return self.network(x_num_tsr, x_cat)

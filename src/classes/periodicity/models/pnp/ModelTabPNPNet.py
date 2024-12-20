@@ -28,8 +28,8 @@ class ModelTabPNPNet:
 
     def predict(
             self,
-            x_train_num_p_tsr: torch.Tensor,
-            x_train_num_np_tsr: torch.Tensor,
-            x_train_cat_tsr: torch.Tensor
+            x_num_p: torch.Tensor,
+            x_num_np: torch.Tensor,
+            x_cat: torch.Tensor
     ) -> torch.Tensor:
-        return self.network(x_train_num_p_tsr, x_train_num_np_tsr, x_train_cat_tsr)
+        return self.network(x_num_p, x_num_np, x_cat)

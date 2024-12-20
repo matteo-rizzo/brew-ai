@@ -6,7 +6,7 @@ import pandas as pd
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.periodicity.CrossValidator import CrossValidator
-from src.classes.periodicity.ProdHandler import ProdHandler
+from src.classes.periodicity.prod.ProdHandler import ProdHandler
 from src.classes.utils.Logger import Logger
 from src.classes.utils.PeriodicityDetector import PeriodicityDetector
 from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE, CLASSIFICATION

@@ -1,6 +1,6 @@
 {
   "beer-fermentation": {
-    "n_num_features": 26,
+    "n_num_features": 23,
     "cat_cols": [
       "Brand"
     ],

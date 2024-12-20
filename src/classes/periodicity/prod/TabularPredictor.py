@@ -6,9 +6,10 @@ import torch
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from torch import nn
 
 from src.classes.periodicity.ModelFactory import ModelFactory
+from src.classes.periodicity.models.base.BaseModel import BaseModel
+from src.classes.periodicity.models.base.BaseTabModel import BaseTabModel
 
 
 class TabularPredictor:
@@ -26,7 +27,7 @@ class TabularPredictor:
         self.data_config = data_config
         self.device = device
 
-    def load_model(self, num_input_size: int, cat_input_size: int) -> nn.Module:
+    def load_model(self, num_input_size: int, cat_input_size: int) -> BaseModel | BaseTabModel:
         """
         Load a PyTorch model from a .pth file.
 
@@ -79,9 +80,8 @@ class TabularPredictor:
 
         # Convert to Torch tensors
         x_num_tsr = torch.tensor(x_num, dtype=torch.float32).to(self.device)
+
         # For categorical features after one-hot encoding, they are now binary indicators.
-        # These should remain float. If a model expects categorical embeddings, it should
-        # take original category indices instead. As code stands, it's unclear. We will keep as float.
         x_cat_tsr = torch.tensor(x_cat, dtype=torch.float32).to(self.device)
 
         return x_num_tsr, x_cat_tsr
@@ -99,12 +99,13 @@ class TabularPredictor:
             num_input_size = x_num.shape[1]
             cat_input_size = x_cat.shape[1]
 
+            print(num_input_size, cat_input_size)
+
             model = self.load_model(num_input_size, cat_input_size)
 
             with torch.no_grad():
-                outputs = model(x_num, x_cat)
+                outputs = model.predict(x_num=x_num, x_cat=x_cat)
 
             return outputs.cpu().numpy()
         except Exception as e:
-            logger.error(f"An error occurred during prediction: {str(e)}")
-            return np.array([])
+            raise ValueError(f"An error occurred during prediction: {str(e)}")

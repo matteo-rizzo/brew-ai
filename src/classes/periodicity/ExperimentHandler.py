@@ -6,6 +6,7 @@ import pandas as pd
 from src.classes.data.DataPreprocessor import DataPreprocessor
 from src.classes.data.DatasetLoader import DatasetLoader
 from src.classes.periodicity.CrossValidator import CrossValidator
+from src.classes.periodicity.ProdHandler import ProdHandler
 from src.classes.utils.Logger import Logger
 from src.classes.utils.PeriodicityDetector import PeriodicityDetector
 from src.config import NUM_FOLDS, EPOCHS, LR, BATCH_SIZE, CLASSIFICATION
@@ -14,7 +15,7 @@ logger = Logger()
 
 
 class ExperimentHandler:
-    def __init__(self, model_name: str, dataset_id: str, x: pd.DataFrame, y: pd.Series, log_dir: str):
+    def __init__(self, model_name: str, dataset_id: str, x: pd.DataFrame, y: pd.Series, log_dir: str, mode: str = "cv"):
         """
         ExperimentHandler class to encapsulate the entire experimental workflow.
 
@@ -22,9 +23,11 @@ class ExperimentHandler:
         :param x: Feature matrix (Pandas DataFrame).
         :param y: Labels (Pandas Series).
         :param log_dir: Directory for saving logs and results.
+        :param mode: Type of experiment, "cv" or "prod".
         """
         self.model_name = model_name
         self.log_dir = log_dir
+        self.mode = mode
         self.x = x
         self.y = y
         logger.info(f"Experiment initialized with model: {model_name}, and dataset: {dataset_id} "
@@ -148,12 +151,50 @@ class ExperimentHandler:
         elapsed_time = time.time() - start_time
         logger.info(f"Cross-validation completed in {elapsed_time / 60:.2f} minutes.")
 
+    def run_production(
+            self,
+            idx_periodic: List[int],
+            idx_non_periodic: List[int],
+            idx_num: List[int],
+            idx_cat: List[int]
+    ):
+        """
+        Train the model for production.
+
+        :param idx_periodic: Indices of periodic numerical features.
+        :param idx_non_periodic: Indices of non-periodic numerical features.
+        :param idx_num: Indices of all numerical features.
+        :param idx_cat: Indices of categorical features.
+        """
+        logger.info(f"Starting training for production model: {self.model_name} with configuration: "
+                    f"Batch Size={BATCH_SIZE}, Epochs={EPOCHS}, Learning Rate={LR}")
+
+        prod_handler = ProdHandler(
+            model_name=self.model_name,
+            dataset_config=self.dataset_config,
+            x=self.x,
+            y=self.y,
+            idx_num=idx_num,
+            idx_cat=idx_cat,
+            idx_periodic=idx_periodic,
+            idx_non_periodic=idx_non_periodic,
+            batch_size=BATCH_SIZE,
+            num_epochs=EPOCHS,
+            learning_rate=LR,
+            log_dir=self.log_dir
+        )
+
+        start_time = time.time()
+        prod_handler.run()
+        elapsed_time = time.time() - start_time
+        logger.info(f"Production training completed in {elapsed_time / 60:.2f} minutes.")
+
     def run_experiment(self):
         """
         Run the full experimental pipeline.
         """
         try:
-            logger.info("Starting the evaluation process.")
+            logger.info("Starting the experiment.")
 
             # Reorder columns first
             self.reorder_columns()
@@ -167,9 +208,13 @@ class ExperimentHandler:
             # Preprocess data
             self.preprocess_data()
 
-            # Run cross-validation
-            self.run_cross_validation(idx_periodic, idx_non_periodic, idx_num, idx_cat)
+            if self.mode == "cv":
+                # Run cross-validation
+                self.run_cross_validation(idx_periodic, idx_non_periodic, idx_num, idx_cat)
+            elif self.mode == "prod":
+                # Train model for production
+                self.run_production(idx_periodic, idx_non_periodic, idx_num, idx_cat)
 
-            logger.info("Evaluation process completed successfully.")
+            logger.info("Experiment completed successfully.")
         except Exception as e:
             logger.error(f"An error occurred during evaluation: {str(e)}")

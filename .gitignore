@@ -772,3 +772,4 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains,pycharm,python,visualstudio,database
 /catboost_info/
 /results/
+/models/

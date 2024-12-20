@@ -2,7 +2,7 @@ import json
 import subprocess
 
 # Load dataset configurations from JSON
-with open('dataset/config.json') as f:
+with open('benchmark/num_clf_config.json') as f:
     dataset_configs = json.load(f)
 
 skipped_datasets = [
@@ -27,7 +27,7 @@ model_types = ["fnet", "opnet", "pnpnet", "autopnpnet"]
 # Iterate over dataset IDs and model types
 for dataset_id in dataset_configs.keys():
     for model_type in model_types:
-        if dataset_id not in skipped_datasets:
+        if dataset_id in skipped_datasets:
             print(f"Evaluating model {model_type} on dataset {dataset_id}")
             # Run the evaluation command
             subprocess.run([

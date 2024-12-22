@@ -10,10 +10,11 @@ from src.classes.periodicity.prod.TabularPredictor import TabularPredictor
 
 
 def main():
-    # Parse command-line arguments for model name, model file path, and input file path
+    # Parse command-line arguments for model name, model file path, and input/output file path
     # Supported models: fnet, cnet, tabfnet, tabcnet, autopnpnet, tabautopnpnet
     parser = argparse.ArgumentParser(description="Run tabular predictions with a specified model.")
     parser.add_argument("--input-file", type=str, required=True, help="Path to the input CSV file.")
+    parser.add_argument("--output-file", type=str, default="predictions.csv", help="Path to the output CSV file.")
     parser.add_argument("--model-name", type=str, default="tabautopnpnet", help="Name of the model to load.")
     parser.add_argument("--model-file", type=str, default="models/tabautopnpnet.pth",
                         help="Path to the model .pth file.")
@@ -45,8 +46,8 @@ def main():
     # Run predictions on the input data using the loaded model
     predictions = tab_predictor(input_data)
 
-    # Save the predictions to a CSV file called "predictions.csv"
-    pd.DataFrame(predictions).to_csv("predictions.csv", index=False)
+    # Save the predictions to a CSV file
+    pd.DataFrame(predictions).to_csv(args.output_file, index=False)
 
 
 if __name__ == "__main__":

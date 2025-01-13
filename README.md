@@ -63,6 +63,125 @@ The codebase supports experiments with both traditional machine learning models 
    - Place your custom datasets in the `dataset/` directory.
    - For OpenML benchmarks, no action is needed; datasets will be downloaded automatically.
 
+## Docker Instructions
+
+This guide provides step-by-step instructions to build and run the Docker container for the `brewery-ml` project.
+
+### Prerequisites
+
+Before building and running the Docker container, ensure the following are installed on your system:
+
+- Docker ([Download and Install](https://docs.docker.com/get-docker/))
+- (Optional) Docker Compose, if you plan to use it.
+
+### Directory Structure
+
+The project directory should follow this structure:
+
+```
+.
+├── docker
+│   └── Dockerfile
+├── prod
+│   └── run_inference.py
+├── dataset
+│   └── beer-fermentation.csv
+├── models
+│   └── tabautopnpnet.pth
+├── requirements.txt
+└── src
+    └── classes
+        └── ...
+```
+
+Ensure all required files, including the `Dockerfile`, datasets, and model files, are in their respective directories.
+
+### Build the Docker Image
+
+To build the Docker image, navigate to the project root directory and run the following command:
+
+```bash
+docker build -t brewery-ml -f docker/Dockerfile .
+```
+
+#### Explanation:
+- `-t brewery-ml`: Tags the Docker image with the name `brewery-ml`.
+- `-f docker/Dockerfile`: Specifies the path to the Dockerfile in the `docker` directory.
+- `.`: Uses the current directory as the build context.
+
+#### Common Issues:
+If you encounter issues during the build (e.g., missing files or directories), ensure:
+- All required directories (e.g., `models`, `dataset`) exist and contain the necessary files.
+- The `.dockerignore` file does not exclude any required files or directories.
+
+### Run the Docker Container
+
+Once the image is built, you can run it using the following command:
+
+```bash
+docker run --rm -it brewery-ml
+```
+
+#### Explanation:
+- `--rm`: Automatically removes the container once it stops.
+- `-it`: Runs the container in interactive mode with a terminal.
+- `brewery-ml`: The name of the image built in the previous step.
+
+#### Running with Custom Arguments
+If you need to pass arguments to the `run_inference.py` script (e.g., a custom config file):
+
+```bash
+docker run --rm -it brewery-ml --config-file custom_config.yaml --verbose
+```
+
+#### Mounting a Volume
+To bind a local volume to the container (e.g., to store the output predictions locally):
+
+```bash
+docker run --rm -it -v $(pwd):/app brewery-ml --verbose
+```
+
+### Debugging and Testing Inside the Container
+
+If you want to debug or explore the container environment, start a shell session:
+
+```bash
+docker run --rm -it brewery-ml bash
+```
+
+#### Verify Files Inside the Container
+Once inside the container, verify the expected files are present:
+
+```bash
+ls /app/dataset
+ls /app/models
+```
+
+### Clean Up
+
+To remove unused Docker containers and images:
+
+```bash
+docker system prune -af
+```
+
+### Example Workflow
+
+1. Build the Docker image:
+   ```bash
+   docker build -t brewery-ml -f docker/Dockerfile .
+   ```
+
+2. Run the Docker container with a specific configuration file:
+   ```bash
+   docker run --rm -it brewery-ml --config-file prod/config.yaml --verbose
+   ```
+
+3. Debug inside the container (optional):
+   ```bash
+   docker run --rm -it brewery-ml bash
+   ```
+
 ## Usage
 
 ### Running Grid Search for Traditional Models

@@ -99,8 +99,6 @@ class TabularPredictor:
             num_input_size = x_num.shape[1]
             cat_input_size = x_cat.shape[1]
 
-            print(num_input_size, cat_input_size)
-
             model = self.load_model(num_input_size, cat_input_size)
 
             with torch.no_grad():

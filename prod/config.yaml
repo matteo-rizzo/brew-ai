@@ -1,0 +1,28 @@
+# Path to the input dataset CSV file
+input_file: "dataset/beer-fermentation.csv"
+
+# Path to the output CSV file for saving predictions
+output_file: "predictions.csv"
+
+# Database connection string (using SQLite in this example)
+#db_url: "sqlite:///data.db"
+
+# Name of the database table to read input data from
+#db_input_table: "input_table"
+
+# Name of the database table to save predictions to
+#db_output_table: "predictions_table"
+
+# Name of the model to be used for predictions
+model_name: "tabautopnpnet"
+
+# Path to the pre-trained model file
+model_file: "models/tabautopnpnet.pth"
+
+# Configuration for the data used in the prediction
+data_config:
+  # Number of numerical features in the dataset
+  n_num_features: 23
+  # List of categorical columns in the dataset
+  cat_cols:
+    - "Brand"

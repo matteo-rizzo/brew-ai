@@ -773,3 +773,6 @@ FodyWeavers.xsd
 /catboost_info/
 /results/
 /models/
+/dataset/
+/docker/
+/notebooks/

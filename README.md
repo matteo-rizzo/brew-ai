@@ -1,343 +1,148 @@
-# Leveraging Periodicity for Tabular Deep Learning
+# 🍺 Brew-AI: Fermentation Prediction & Comparison Engine
 
-This repository contains the complete codebase and resources accompanying our paper **Leveraging Periodicity for Tabular Deep Learning**. The project explores the incorporation of periodic features into deep learning models for tabular data, demonstrating how leveraging periodicity can enhance model performance on various tasks.
+Brew-AI is a demo standalone desktop application designed for brewers, lab technicians, and fermentation
+scientists. It leverages machine learning models to predict key outcomes of the beer fermentation process based on a
+comprehensive set of 23 input variables.
 
-The codebase supports experiments with both traditional machine learning models and novel periodicity-aware deep learning architectures. Experiments can be conducted on custom datasets located in the `dataset/` directory or on OpenML benchmarks, particularly those discussed in the paper [Why do tree-based models still outperform deep learning on typical tabular data?](https://arxiv.org/abs/1906.01784)
+This tool moves beyond simple prediction, allowing you to manage a library of models for different targets, compare
+their performance side-by-side, and analyze your data, all within a polished and intuitive graphical interface that runs
+locally in your web browser.
 
-## Table of Contents
+## ✨ Key Features
 
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Running Grid Search for Traditional Models](#running-grid-search-for-traditional-models)
-  - [Evaluating Periodicity-Aware Models](#evaluating-periodicity-aware-models)
-- [Configuration](#configuration)
-- [Models Overview](#models-overview)
-  - [Traditional Machine Learning Models](#traditional-machine-learning-models)
-  - [Periodicity-Aware Deep Learning Models](#periodicity-aware-deep-learning-models)
-- [Results and Logging](#results-and-logging)
-- [Dataset Information](#dataset-information)
-- [License](#license)
-- [References](#references)
+* **Multi-Target Prediction:** Predict different variables of the fermentation process (e.g., "Diacetyl Rest," "Final
+  Gravity") by simply selecting the desired outcome from a dropdown.
+* **Multi-Model Comparison:** For any single target, run and compare multiple trained models at once to evaluate their
+  performance and prediction variance.
+* **Hierarchical Model Management:** Simply drop your trained model files (`.pth`, `.pt`) into organized
+  subdirectories (e.g., `models/Diacetyl Rest/`) and the app will automatically detect and load them.
+* **Dual Input Methods:**
+    * **Manual Form Entry:** A clean, organized form with collapsible sections allows for the quick prediction of a
+      single batch using 23 specific process variables.
+    * **Batch Prediction from CSV:** Upload a CSV file containing multiple batches to get predictions for all of them at
+      once.
+* **Standalone & Cross-Platform:** Packaged into a single executable folder, allowing anyone on macOS or Windows to run
+  the application without needing to install Python or any libraries.
 
-## Features
+## 🚀 Getting Started (For End-Users)
 
-- **Grid Search Cross-Validation** for traditional machine learning models: Random Forest, ElasticNet, MLP, XGBoost, LightGBM, CatBoost.
-- **Periodicity-Aware Deep Learning Models**: Implementations of FNet, OpNet, PNPNet, AutoPNPNet, and FTTransformer.
-- **Automatic Periodicity Detection**: Includes a `PeriodicityDetector` to identify periodic and non-periodic features.
-- **Flexible Data Handling**: Supports custom datasets and OpenML benchmarks.
-- **Comprehensive Logging and Metrics**: Detailed experiment logs and performance metrics are stored for easy analysis.
+If you have downloaded a packaged version of the application (e.g., `BrewAI_macOS.zip`), follow these steps to run it.
 
-## Installation
+1. **Download:** Get the latest release ZIP file for your operating system.
+2. **Unzip:** Extract the contents of the ZIP file to a convenient location on your computer (like your Desktop or
+   Documents folder). This will create a folder named `BrewAI`.
+3. **Launch the Server:** Open the `BrewAI` folder and double-click the executable file (`BrewAI.exe` on Windows,
+   `BrewAI.app` on macOS).
+    * The application will start a server in the background. **No window will appear immediately.** This is normal.
+      Please allow 10-20 seconds for it to initialize.
+4. **Open the Interface:** Manually open your web browser (Chrome, Safari, Firefox, etc.) and navigate to the following
+   address:
+   > **[http://127.0.0.1:7860](http://127.0.0.1:7860)**
+5. The application interface will load in your browser. You can now begin your analysis\!
 
-### Prerequisites
+## 📋 How to Use the Application
 
-- Python 3.10
-- [PyTorch](https://pytorch.org/) (version compatible with your CUDA version if using GPU)
-- Other Python packages listed in `requirements.txt`
+The interface is designed to be a straightforward, step-by-step process controlled from the left sidebar.
 
-### Steps
+1. **Select Target & Model(s):**
 
-1. **Clone the repository:**
+    * In the **Step 1** panel, use the first dropdown to select the variable you want to predict (e.g., "Diacetyl
+      Rest").
+    * The checkbox group below it will automatically populate with all the models available for that target. Select one
+      or more models you wish to run.
 
-   ```bash
-   git clone https://github.com/matteo-rizzo/brewery-ml.git
-   cd brewery-ml
-   ```
+2. **Provide Input Data:**
 
-2. **Create a virtual environment (optional but recommended):**
+    * In the **Step 2** panel, choose your input method:
+        * **Manual Entry:** Fill out the form with the 23 process variables for a single batch. The form is organized
+          into collapsible sections for clarity.
+        * **Batch from CSV:** Select this option and upload a CSV file. **Important:** The CSV file must contain columns
+          whose names exactly match the required input variables.
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+3. **Run Prediction:**
 
-3. **Install the required packages:**
+    * Click the **"🚀 Run Prediction / Comparison"** button. A progress bar will show the status.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+4. **Analyze Results:**
 
-4. **Set up the datasets:**
+    * The results will appear in the **"📈 Results"** tab on the right.
+    * **Single Model Run:** You will see a direct prediction value (for manual entry) or a new prediction column in your
+      data (for batch CSV).
+    * **Multi-Model Comparison:** The results will be shown in sub-tabs:
+        * **Side-by-Side Data:** A table with a separate prediction column for each model.
+        * **Statistics:** A summary table with descriptive statistics (mean, std, etc.) for each model's predictions.
+        * **Distributions Plot:** A visual plot showing the density of predictions from all models, overlaid for easy
+          comparison.
 
-   - Place your custom datasets in the `dataset/` directory.
-   - For OpenML benchmarks, no action is needed; datasets will be downloaded automatically.
+## 🛠️ For Developers & Contributors
 
-## Docker Instructions
+This section provides instructions for setting up the project for development, adding new models, and building the
+standalone installer.
 
-This guide provides step-by-step instructions to build and run the Docker container for the `brewery-ml` project.
+### Setup & Installation
 
-### Prerequisites
+1. **Clone the Repository:**
+   `git clone https://github.com/your-username/brewery-ml.git`
+   `cd brewery-ml`
 
-Before building and running the Docker container, ensure the following are installed on your system:
+2. **Create and Activate a Virtual Environment:**
+   `python3 -m venv .venv`
+   `source .venv/bin/activate` (macOS/Linux) or `.venv\Scripts\activate` (Windows)
 
-- Docker ([Download and Install](https://docs.docker.com/get-docker/))
-- (Optional) Docker Compose, if you plan to use it.
+3. **Install Dependencies:**
+   `pip install -r requirements.txt`
 
-### Directory Structure
+### Running the App Locally
 
-The project directory should follow this structure:
+To run the application in development mode with live reloading:
 
-```
-.
-├── docker
-│   └── Dockerfile
-├── prod
-│   └── run_inference.py
-├── dataset
-│   └── beer-fermentation.csv
-├── models
-│   └── tabautopnpnet.pth
-├── requirements.txt
-└── src
-    └── classes
-        └── ...
-```
+`python3 app.py`
 
-Ensure all required files, including the `Dockerfile`, datasets, and model files, are in their respective directories.
+### Adding New Models
 
-### Build the Docker Image
+The application will automatically detect new models if you follow this structure:
 
-To build the Docker image, navigate to the project root directory and run the following command:
+1. **Identify the Target:** Determine the exact name of the variable your model predicts (e.g., "Diacetyl Rest").
+2. **Create a Subdirectory:** Inside the `models/` directory, create a new folder with that exact name.
+3. **Place the Model File:** Copy your trained model file (`.pth` or `.pt`) into the corresponding subdirectory.
 
-```bash
-docker build -t brewery-ml -f docker/Dockerfile .
-```
+**Example:** To add a model named `resnet_v3.pth` that predicts `Final Gravity`, the file must be placed at:
+`models/Final Gravity/resnet_v3.pth`.
 
-#### Explanation:
-- `-t brewery-ml`: Tags the Docker image with the name `brewery-ml`.
-- `-f docker/Dockerfile`: Specifies the path to the Dockerfile in the `docker` directory.
-- `.`: Uses the current directory as the build context.
+### Creating a Standalone Installer
 
-#### Common Issues:
-If you encounter issues during the build (e.g., missing files or directories), ensure:
-- All required directories (e.g., `models`, `dataset`) exist and contain the necessary files.
-- The `.dockerignore` file does not exclude any required files or directories.
+The application is built using **PyInstaller** with a **`.spec` file**, which is the most robust method for handling
+this project's complex dependencies.
 
-### Run the Docker Container
+1. **Install/Update Dependencies:** Make sure `pyinstaller` and `scikit-learn` are installed in your virtual
+   environment.
+   `pip install -U pyinstaller scikit-learn`
 
-Once the image is built, you can run it using the following command:
+2. **Ensure `sys.path` Fix:** Confirm the path correction code is at the top of `app.py`.
 
-```bash
-docker run --rm -it brewery-ml
-```
+3. **Ensure Hook File Exists:** Confirm the `hooks/hook-gradio.py` file exists with the correct content.
 
-#### Explanation:
-- `--rm`: Automatically removes the container once it stops.
-- `-it`: Runs the container in interactive mode with a terminal.
-- `brewery-ml`: The name of the image built in the previous step.
+4. **Build from the Spec File:** The recommended way to build is to use the included `app.spec` file. This file
+   contains all the necessary configurations to correctly bundle Gradio and its hidden dependencies.
 
-#### Running with Custom Arguments
-If you need to pass arguments to the `run_inference.py` script (e.g., a custom config file):
+    * First, delete any old `build` and `dist` folders to ensure a clean build.
+    * Then, run the following command in your terminal:
+      ```bash
+      pyinstaller app.py.spec
+      ```
 
-```bash
-docker run --rm -it brewery-ml --config-file custom_config.yaml --verbose
-```
+5. **Distribute:** Find the final application folder inside `dist/BrewAI`. Zip this entire folder and distribute the ZIP
+   file.
 
-#### Mounting a Volume
-To bind a local volume to the container (e.g., to store the output predictions locally):
+## 💻 Technology Stack
 
-```bash
-docker run --rm -it -v $(pwd):/app brewery-ml --verbose
-```
+* **Python 3.10+**
+* **Gradio:** For the user interface
+* **PyTorch:** For loading and running the models
+* **Pandas:** For data manipulation
+* **scikit-learn:** A core dependency for the data processing models
+* **PyInstaller:** For creating the standalone executable
 
-### Debugging and Testing Inside the Container
+## 📜 License
 
-If you want to debug or explore the container environment, start a shell session:
-
-```bash
-docker run --rm -it brewery-ml bash
-```
-
-#### Verify Files Inside the Container
-Once inside the container, verify the expected files are present:
-
-```bash
-ls /app/dataset
-ls /app/models
-```
-
-### Clean Up
-
-To remove unused Docker containers and images:
-
-```bash
-docker system prune -af
-```
-
-### Example Workflow
-
-1. Build the Docker image:
-   ```bash
-   docker build -t brewery-ml -f docker/Dockerfile .
-   ```
-
-2. Run the Docker container with a specific configuration file:
-   ```bash
-   docker run --rm -it brewery-ml --config-file prod/config.yaml --verbose
-   ```
-
-3. Debug inside the container (optional):
-   ```bash
-   docker run --rm -it brewery-ml bash
-   ```
-
-## Usage
-
-### Running Grid Search for Traditional Models
-
-The `grid_search.py` script runs grid search cross-validation for traditional machine learning models.
-
-**Example command:**
-
-```bash
-python grid_search.py --dataset beer-fermentation
-```
-
-**Available arguments:**
-
-- `--dataset`: Specifies the dataset ID to use. Defaults to the `DATASET_ID` defined in `config.py`.
-
-### Evaluating Periodicity-Aware Models
-
-The `evaluate_periodicity_models.py` script evaluates periodicity-aware deep learning models.
-
-**Example command:**
-
-```bash
-python evaluate_periodicity_models.py --model tabautopnpnet --dataset beer-fermentation
-```
-
-**Available arguments:**
-
-- `--model`: Specifies the periodicity-aware model to use. Defaults to the `MODEL` defined in `config.py`.
-- `--dataset`: Specifies the dataset ID to use. Defaults to the `DATASET_ID` defined in `config.py`.
-
-**Note:** To use OpenML benchmarks, set `BENCHMARK = True` in `config.py` and specify the `SUITE_ID`.
-
-## Configuration
-
-The `config.py` file contains all the configurations for the experiments. Key parameters include:
-
-- **Common Settings:**
-
-  ```python
-  BASE_LOG_DIR = "logs"
-  RANDOM_SEED = 0
-  NUM_FOLDS = 5
-  TEST_SIZE = 0.1
-  DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-  DATASET_ID = "beer-fermentation"
-  BENCHMARK = True
-  ```
-
-- **Benchmark Suite:**
-
-  ```python
-  SUITE_ID = 337  # OpenML suite (e.g., classification on numerical features)
-  CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])  # Whether the dataset is for a classification task (defaults to regression for custom datasets) 
-  ```
-
-- **Periodicity Settings:**
-
-  ```python
-  MODEL = "tabautopnpnet"
-  CAT_HIDDEN_SIZE = 256
-  NUM_FOURIER_FEATURES = 100
-  MAX_POLY_TERMS = 5
-  POLY_TYPE = "chebyshev"  # 'chebyshev', 'legendre', 'hermite', 'laguerre'
-  ```
-
-- **Training Settings:**
-
-  ```python
-  EPOCHS = 1000
-  LR = 0.05
-  BATCH_SIZE = 64
-  PATIENCE = 100
-  ```
-
-- **Grid Search Settings:**
-
-  ```python
-  CV_METRICS = ['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error', 'neg_root_mean_squared_error']
-  MAX_ITERATIONS = 300
-  ```
-
-- **Reproducibility:**
-
-  ```python
-  np.random.seed(RANDOM_SEED)
-  torch.manual_seed(RANDOM_SEED)
-  ```
-
-## Models Overview
-
-### Traditional Machine Learning Models
-
-We provide grid search cross-validation for the following Sklearn models:
-
-- **Random Forest (RF)**
-- **ElasticNet**
-- **Multi-Layer Perceptron (MLP)**
-- **XGBoost**
-- **LightGBM**
-- **CatBoost**
-
-These models are tuned using a comprehensive grid search over hyperparameters defined in `ModelConfigFactory.py`.
-
-### Periodicity-Aware Deep Learning Models
-
-Our proposed models are designed to handle periodic and non-periodic features effectively:
-
-- **BASELINE FTTransformer:** A transformer-based model adapted for tabular data.
-- **FourierNet:** Uses Fourier encoding to capture periodicity in features.
-- **OrthogonalPolynomialNet:** Employs orthogonal polynomial encodings (Chebyshev polynomials) to model periodic patterns.
-- **PNPNet:** Requires periodic and non-periodic features identified a priori using `PeriodicityDetector`. It processes features using separate Fourier and Chebyshev branches.
-- **AutoPNPNet:** An extension of PNPNet that automatically detects periodic and non-periodic features using an integrated MLP.
-
-**Model Implementation Details:**
-
-- **Fourier-Based Models:** Implemented in `classes/periodicity/models/fourier/`.
-- **Orthogonal Polynomial Models:** Implemented in `classes/periodicity/models/orthogonal_poly/`.
-- **PNP and AutoPNP Models:** Implemented in `classes/periodicity/models/pnp/` and `classes/periodicity/models/autopnp/`.
-
-## Results and Logging
-
-Experiment results, metrics, and logs are stored in the directory specified by `BASE_LOG_DIR` in `config.py`. Each experiment creates a unique subdirectory named based on the dataset and model used.
-
-**Visualization:**
-
-- Use `Plotter.py` in `classes/utils/` to generate plots of training metrics.
-- Metrics can be analyzed to compare model performance across different configurations.
-
-## Dataset Information
-
-- **Custom Datasets:**
-
-  - Place your datasets in the `dataset/` directory.
-  - Ensure datasets are properly formatted (e.g., CSV files with headers).
-  - Add the dataset configuration at `dataset/config.json`
-
-**Note:** Each dataset configuration must include;
-- Dataset ID
-- `n_num_features`: number of numerical features
-- `cat_cols`: name of categorical columns
-- `cat_cards`: cardinality of each categorical feature, as a list. All categorical features are one-hot encoded, thus it is sufficient to provide a list of `2`s as long as the number of categorical features in the dataset (this is required for FTTransformer)
-- `target`: name of the target column 
-
-- **OpenML Benchmarks:**
-  
-  - More info about the benchmark can be found in the official author's [repo](https://github.com/LeoGrin/tabular-benchmark).
-  - Set `BENCHMARK = True` in `config.py`.
-  - Specify `SUITE_ID` to select the benchmark suite.
-  - Datasets are automatically downloaded and preprocessed.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## References
-
-- **Our Paper:** *Leveraging Periodicity for Tabular Deep Learning* (Add link when available)
-- **Benchmark Paper:** Prokhorenkova, L., & Gusev, G. (2019). *Why do tree-based models still outperform deep learning on typical tabular data?* arXiv preprint arXiv:1906.01784.
+This project is licensed under the MIT License.

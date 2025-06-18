@@ -8,6 +8,8 @@ This tool moves beyond simple prediction, allowing you to manage a library of mo
 their performance side-by-side, and analyze your data, all within a polished and intuitive graphical interface that runs
 locally in your web browser.
 
+Available machine learning models are based on the paper ["Leveraging Periodicity for Tabular Deep Learning"](https://www.mdpi.com/2079-9292/14/6/1165), whose code can be found [here](https://github.com/matteo-rizzo/periodic-tabular-dl).
+
 ## ✨ Key Features
 
 * **Multi-Target Prediction:** Predict different variables of the fermentation process (e.g., "Diacetyl Rest," "Final

@@ -84,8 +84,8 @@ standalone installer.
 ### Setup & Installation
 
 1. **Clone the Repository:**
-   `git clone https://github.com/your-username/brewery-ml.git`
-   `cd brewery-ml`
+   `git clone https://github.com/matteo-rizzo/brewery-ml.git`
+   `cd brew-ai`
 
 2. **Create and Activate a Virtual Environment:**
    `python3 -m venv .venv`

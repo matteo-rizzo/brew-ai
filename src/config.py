@@ -18,7 +18,7 @@ SUITE_ID = 337  # Classification on numerical features
 CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])
 
 # Periodicity
-MODEL = "tabautopnpnet"  # 'fnet', 'tabfnet', 'opnet', 'tabopnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
+MODEL = "tabcnet"  # 'fnet', 'tabfnet', 'opnet', 'tabopnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
 CAT_HIDDEN_SIZE = 256
 NUM_FOURIER_FEATURES = 100
 MAX_POLY_TERMS = 5

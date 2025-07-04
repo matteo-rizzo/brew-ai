@@ -149,7 +149,7 @@ def run_single_prediction(df: pd.DataFrame, target_variable: str, model_filename
     if df.shape[0] == 1:
         scalar_prediction = predictions.item()
         logging.info(f"Final scalar prediction: {scalar_prediction:.3f}")
-        return f"{scalar_prediction:.3f}", None
+        return f"{scalar_prediction:.2f}", None
     else:
         output_df = df.copy()
         output_df[f"prediction_{model_name_key}"] = predictions

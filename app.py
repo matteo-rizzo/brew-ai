@@ -1,4 +1,5 @@
 import logging
+import signal
 import sys
 from typing import List
 
@@ -80,6 +81,33 @@ def master_prediction_handler(*args):
                 comparison_df, summary_stats, dist_plot = backend.run_multi_model_comparison(df, target_variable,
                                                                                              selected_models)
                 gr.Info("✅ Comparison successful!")
+
+            def style_dataframe(df_to_style, highlight=False):
+                if df_to_style is None:
+                    return None
+
+                # Select only numeric columns for float formatting
+                numeric_cols = df_to_style.select_dtypes(include=['number']).columns
+                formatter = {col: '{:.2f}' for col in numeric_cols}
+
+                # Apply formatting and highlighting using the Styler API
+                styler = df_to_style.style.format(formatter, na_rep="-")
+
+                # Identify prediction columns for highlighting
+                pred_cols = [col for col in df_to_style.columns if 'prediction' in str(col)]
+
+                if highlight and pred_cols:
+                    # FIX: Use set_properties for a cleaner and more robust way to apply styles to columns
+                    styler = styler.set_properties(
+                        subset=pred_cols,
+                        **{'background-color': '#FFFBEB', 'font-weight': 'bold'}
+                    )
+
+                return styler
+
+            # Apply styling to both dataframes
+            comparison_df = style_dataframe(comparison_df, highlight=True)
+            summary_stats = style_dataframe(summary_stats)
 
             # Return the results to the appropriate components in the comparison view.
             return None, comparison_df, summary_stats, dist_plot, gr.update(visible=False), gr.update(visible=True)
@@ -230,12 +258,12 @@ def build_ui():
                     gr.Markdown("")  # Spacer
 
                     with gr.Row():
-                        clear_button = gr.Button("🔄 Clear All", variant="secondary")
-                        run_button = gr.Button("🚀 Run Prediction", variant="primary", interactive=False)
+                        quit_button = gr.Button("Quit Application", variant="stop")
+                        clear_button = gr.Button("Clear All", variant="secondary")
+                        run_button = gr.Button("Run Prediction", variant="primary", interactive=False)
 
             # --- Right Column: Results ---
             with gr.Column(scale=3, min_width=600):
-                gr.Markdown("## 📈 Results")
                 with gr.Column(visible=True) as single_result_group:
                     single_prediction_output = gr.Textbox(label="Predicted Value", interactive=False,
                                                           elem_id="single-prediction-output")
@@ -272,6 +300,12 @@ def build_ui():
         # --- UI Interactivity Logic ---
         data_ready_state = gr.State(True)
 
+        def shutdown_app():
+            logging.info("Quit button clicked. Shutting down.")
+            demo.close()
+
+        quit_button.click(fn=shutdown_app, js="() => { window.close(); }")
+
         def update_model_selection(target_variable: str):
             models = AVAILABLE_MODELS_DICT.get(target_variable, [])
             return gr.CheckboxGroup(choices=models, label="Select Model(s)", interactive=True,
@@ -306,7 +340,7 @@ def build_ui():
 
         def toggle_run_button_interactivity(data_ready: bool, models_selected: List):
             is_interactive = bool(data_ready and models_selected)
-            button_text = "🚀 Run Comparison" if len(models_selected or []) > 1 else "🚀 Run Prediction"
+            button_text = "Run Comparison" if len(models_selected or []) > 1 else "Run Prediction"
             return gr.Button(value=button_text, interactive=is_interactive)
 
         data_ready_state.change(fn=toggle_run_button_interactivity, inputs=[data_ready_state, model_selection_group],
@@ -337,5 +371,18 @@ def build_ui():
 
 if __name__ == "__main__":
     app_ui = build_ui()
-    # FIX: The 'allowed_paths' argument must point to the directory, not a specific file.
+
+
+    # --- Graceful Shutdown Logic ---
+    def shutdown_handler(signum, frame):
+        logging.info("Shutdown signal received. Closing application.")
+        app_ui.close()
+        sys.exit(0)
+
+
+    # Register the handler for SIGTERM (used by OS) and SIGINT (Ctrl+C)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+    signal.signal(signal.SIGINT, shutdown_handler)
+    # --- End Shutdown Logic ---
+
     app_ui.launch(server_name="127.0.0.1", server_port=7860, show_api=False, inbrowser=True, allowed_paths=["assets"])

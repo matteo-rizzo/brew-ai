@@ -1,10 +1,11 @@
 import argparse
 import os
+
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -94,7 +95,7 @@ def main(model_type: str, dataset_id: str):
             y_test if isinstance(y_test, np.ndarray) else y_test.values
         ), axis=0)
 
-        # FIX: Convert the final NumPy arrays back to pandas DataFrame and Series
+        # Convert the final NumPy arrays back to pandas DataFrame and Series
         # to match the expected input types of ProdHandler and DataSplitter.
         X_prod = pd.DataFrame(X_prod_np)
         y_prod = pd.Series(y_prod_np)
@@ -139,7 +140,7 @@ def main(model_type: str, dataset_id: str):
         logger.info("Production training process completed successfully.")
 
     except Exception as e:
-        logger.error(f"An error occurred during production training: {str(e)}", exc_info=True)
+        logger.error(f"An error occurred during production training: {str(e)}")
 
 
 if __name__ == "__main__":

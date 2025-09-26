@@ -34,12 +34,11 @@ class DataSplitter:
             self.x, self.y, test_size=self.test_size, random_state=self.random_state
         )
 
-        # FIX: Use .iloc for positional indexing on pandas DataFrames.
-        # .values converts the result to a clean NumPy array for subsequent slicing.
-        x_train_num = x_train.iloc[:, self.idx_num].values
-        x_train_cat = x_train.iloc[:, self.idx_cat].values
-        x_val_num = x_val.iloc[:, self.idx_num].values
-        x_val_cat = x_val.iloc[:, self.idx_cat].values
+        # Slice into numerical and categorical features
+        x_train_num = x_train[:, self.idx_num]
+        x_train_cat = x_train[:, self.idx_cat]
+        x_val_num = x_val[:, self.idx_num]
+        x_val_cat = x_val[:, self.idx_cat]
 
         # Split numerical features into periodic and non-periodic
         # This slicing is now correct because x_train_num and x_val_num are NumPy arrays.

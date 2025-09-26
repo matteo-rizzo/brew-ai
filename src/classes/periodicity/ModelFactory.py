@@ -10,8 +10,6 @@ from src.classes.periodicity.models.fourier.ModelTabFourierNet import ModelTabFo
 from src.classes.periodicity.models.orthogonal_poly.ModelOrthogonalPolynomialNet import ModelOrthogonalPolynomialNet
 from src.classes.periodicity.models.orthogonal_poly.ModelTabOrthogonalPolynomialNet import \
     ModelTabOrthogonalPolynomialNet
-from src.classes.periodicity.models.pnp.ModelPNPNet import ModelPNPNet
-from src.classes.periodicity.models.pnp.ModelTabPNPNet import ModelTabPNPNet
 from src.config import NUM_FOURIER_FEATURES, MAX_POLY_TERMS, CAT_HIDDEN_SIZE
 
 
@@ -53,22 +51,6 @@ class ModelFactory:
             "tabcnet": lambda: ModelTabOrthogonalPolynomialNet(
                 continuous_input_size=num_input_size,
                 categorical_input_size=cat_input_size,
-                max_poly_terms=max_poly_terms,
-                hidden_size=hidden_size,
-                output_size=output_size
-            ),
-            "pnpnet": lambda: ModelPNPNet(
-                periodic_input_size=num_periodic_input_size,
-                non_periodic_input_size=num_non_periodic_input_size,
-                num_fourier_features=num_fourier_features,
-                max_poly_terms=max_poly_terms,
-                output_size=output_size
-            ),
-            "tabpnpnet": lambda: ModelTabPNPNet(
-                periodic_input_size=num_periodic_input_size,
-                non_periodic_input_size=num_non_periodic_input_size,
-                categorical_input_size=cat_input_size,
-                num_fourier_features=num_fourier_features,
                 max_poly_terms=max_poly_terms,
                 hidden_size=hidden_size,
                 output_size=output_size

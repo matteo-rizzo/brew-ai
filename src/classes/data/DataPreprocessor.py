@@ -41,16 +41,10 @@ class DataPreprocessor:
         """
         logger.info("Starting data preprocessing: Scaling numerical and encoding categorical features...")
 
-        # Numerical feature processing: scaling and optional PCA
-        num_transformers = [('scaler', StandardScaler())]
-
-        # Create a pipeline for numerical transformations
-        num_pipeline = Pipeline(steps=num_transformers)
-
         # Define the preprocessor pipeline
         preprocessor = ColumnTransformer(
             transformers=[
-                ('num', num_pipeline, self.num_cols),  # Apply scaling (and PCA) to numerical columns
+                ('num', 'passthrough', self.num_cols),  # Apply scaling (and PCA) to numerical columns
                 ('cat', OneHotEncoder(handle_unknown='ignore'), self.cat_cols)  # One-hot encode categorical columns
             ]
         )

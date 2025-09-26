@@ -7,7 +7,7 @@ RANDOM_SEED = 0
 NUM_FOLDS = 5
 TEST_SIZE = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-DATASET_ID = "beer-fermentation"
+DATASET_ID = "beer-fermentation-mock"
 BENCHMARK = False
 
 # SUITE_ID = 335 # Regression on numerical and categorical features
@@ -19,15 +19,15 @@ CLASSIFICATION = BENCHMARK and (SUITE_ID in [334, 337])
 
 # Periodicity
 MODEL = "tabcnet"  # 'fnet', 'tabfnet', 'opnet', 'tabopnet', 'pnpnet', 'tabpnpnet', 'autopnpnet', 'tabautopnpnet', 'tabbaseline'
-CAT_HIDDEN_SIZE = 256
-NUM_FOURIER_FEATURES = 100
-MAX_POLY_TERMS = 5
+CAT_HIDDEN_SIZE = 128
+NUM_FOURIER_FEATURES = 6
+MAX_POLY_TERMS = 6
 POLY_TYPE = "chebyshev"  # 'chebyshev', 'legendre', 'hermite', 'laguerre'
 
 # Training
 EPOCHS = 1000
-LR = 0.05
-BATCH_SIZE = 64
+LR = 0.1
+BATCH_SIZE = 32
 PATIENCE = 100
 
 # Grid Search

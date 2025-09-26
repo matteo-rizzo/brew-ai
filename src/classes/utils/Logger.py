@@ -1,4 +1,5 @@
 import logging
+
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.panel import Panel

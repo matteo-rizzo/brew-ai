@@ -25,7 +25,15 @@ class ModelBaseline:
             x_num_np: torch.Tensor,
             x_cat: torch.Tensor
     ) -> torch.Tensor:
-        x_num_tsr = torch.cat([x_num_p, x_num_np], dim=-1)
+        if x_num_p.shape[-1] == 0:
+            x_num_tsr = x_num_np
+        elif x_num_np.shape[-1] == 0:
+            x_num_tsr = x_num_p
+        else:
+            x_num_tsr = torch.cat([x_num_p, x_num_np], dim=-1)
         if not x_cat.numel():
             x_cat = None
+
+        x_cat = x_cat.type(torch.int8)
+
         return self.network(x_num_tsr, x_cat)

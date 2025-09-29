@@ -1,17 +1,19 @@
-import os
 import json
+import os
+
 import pandas as pd
+from rich import box
 from rich.console import Console
 from rich.progress import track
 from rich.table import Table
-from rich import box
 
 # Initialize rich console for better printing
 console = Console()
 
 # Directory where evaluation results are stored
-BASE_DIR = 'results/'
-AGGREGATED_CSV_PATH = 'logs/aggregated_results.csv'
+BASE_DIR = 'results/periodicity'
+AGGREGATED_CSV_PATH = 'logs/aggregated_results_periodicity.csv'
+
 
 def find_metrics_files(base_dir: str) -> pd.DataFrame:
     """
@@ -36,12 +38,30 @@ def find_metrics_files(base_dir: str) -> pd.DataFrame:
                     metrics['model_name'] = model_name
                     aggregated_data.append(metrics)
 
-    if aggregated_data:
+    aggregated_data = pd.DataFrame(aggregated_data)
+
+    if not aggregated_data.empty:
+
+        # This dynamically selects all columns except for the one used for grouping.
+        metric_cols = [col for col in aggregated_data.columns if col != 'model_name']
+
+        # The .agg() function allows applying multiple aggregation functions at once.
+        # Here, we apply 'mean' and 'std' to each column in metric_cols.
+        aggregated_data = aggregated_data.groupby('model_name')[metric_cols].agg(['mean', 'std'])
+
+        # The column names after aggregation are multi-level (e.g., ('accuracy', 'mean')).
+        # This list comprehension joins them into a single string (e.g., 'accuracy_mean').
+        aggregated_data.columns = ['_'.join(col).strip() for col in aggregated_data.columns.values]
+
+        # Reset the index to turn the 'model_name' group labels back into a column
+        aggregated_data = aggregated_data.reset_index()
+
         console.print(f"[bold green]Successfully aggregated metrics from {len(aggregated_data)} models.[/bold green]")
     else:
         console.print("[bold red]No metrics found in the specified directories.[/bold red]")
 
-    return pd.DataFrame(aggregated_data)
+    return aggregated_data
+
 
 def load_metrics_from_json(json_file: str) -> dict:
     """
@@ -59,6 +79,7 @@ def load_metrics_from_json(json_file: str) -> dict:
         console.print(f"[bold red]Error loading {json_file}: {e}[/bold red]")
         return {}
 
+
 def save_to_csv(dataframe: pd.DataFrame, output_path: str) -> None:
     """
     Save the aggregated DataFrame to a CSV file.
@@ -68,6 +89,7 @@ def save_to_csv(dataframe: pd.DataFrame, output_path: str) -> None:
     """
     dataframe.to_csv(output_path, index=False)
     console.print(f"[bold green]Aggregated results saved to:[/bold green] {output_path}")
+
 
 def display_summary_table(dataframe: pd.DataFrame) -> None:
     """
@@ -87,6 +109,7 @@ def display_summary_table(dataframe: pd.DataFrame) -> None:
 
     console.print(table)
 
+
 def main():
     """
     Main function to aggregate results and save as CSV.
@@ -104,6 +127,7 @@ def main():
         save_to_csv(aggregated_df, AGGREGATED_CSV_PATH)
     else:
         console.print("[bold red]No metrics found to aggregate.[/bold red]")
+
 
 if __name__ == "__main__":
     main()
